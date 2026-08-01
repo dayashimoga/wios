@@ -141,7 +141,7 @@ jobs:
     needs: [create-release, build-web, build-android, build-windows, build-linux, build-macos]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: artifacts
       - name: Upload to Release
