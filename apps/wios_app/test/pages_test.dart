@@ -18,7 +18,7 @@ void main() {
       await tester.pumpWidget(const MaterialApp(home: Scaffold(body: MeshPage())));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Scan'));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 500));
       expect(find.text('Stop'), findsOneWidget);
     });
   });
