@@ -3,7 +3,7 @@ WORKDIR /build
 COPY crates/ crates/
 RUN cd crates && cargo build --workspace --release
 
-FROM ubuntu:24.04 AS flutter-builder
+FROM ubuntu:26.04 AS flutter-builder
 RUN apt-get update && apt-get install -y curl git unzip xz-utils && \
     git clone --depth 1 -b stable https://github.com/flutter/flutter.git /flutter && \
     /flutter/bin/flutter precache --web
