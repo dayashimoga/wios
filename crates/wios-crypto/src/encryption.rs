@@ -20,6 +20,7 @@ impl EncryptionService {
 
         let mut nonce_bytes = [0u8; 12];
         rand::thread_rng().fill_bytes(&mut nonce_bytes);
+        #[allow(deprecated)]
         let nonce = Nonce::from_slice(&nonce_bytes);
 
         let ciphertext = cipher
@@ -44,6 +45,7 @@ impl EncryptionService {
         let (nonce_bytes, ciphertext) = data.split_at(12);
         let cipher =
             Aes256Gcm::new_from_slice(key).map_err(|e| WiosError::Decryption(e.to_string()))?;
+        #[allow(deprecated)]
         let nonce = Nonce::from_slice(nonce_bytes);
 
         cipher
