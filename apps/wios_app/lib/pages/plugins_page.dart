@@ -164,7 +164,7 @@ class _PluginsPageState extends State<PluginsPage> {
               if (p.enabled)
                 Switch(
                   value: p.enabled,
-                  activeColor: const Color(0xFF8B5CF6),
+                  activeThumbColor: const Color(0xFF8B5CF6),
                   onChanged: (v) => setState(() => p.enabled = v),
                 )
               else

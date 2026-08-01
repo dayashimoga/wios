@@ -174,7 +174,7 @@ class _MessagesPageState extends State<MessagesPage> {
   void _send(String text) {
     if (text.trim().isEmpty) return;
     setState(() {
-      _messages.add(_Msg('You', text.trim(), '${TimeOfDay.now().format(context)}', false));
+      _messages.add(_Msg('You', text.trim(), TimeOfDay.now().format(context), false));
       _msgController.clear();
     });
   }

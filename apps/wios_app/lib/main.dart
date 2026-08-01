@@ -759,48 +759,7 @@ class _DashboardPage extends StatelessWidget {
   }
 }
 
-class _PlaceholderPage extends StatelessWidget {
-  final String title;
-  final IconData icon;
 
-  const _PlaceholderPage({required this.title, required this.icon});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              color: const Color(0xFF00D4AA).withValues(alpha: 0.1),
-            ),
-            child: Icon(icon, color: const Color(0xFF00D4AA), size: 40),
-          ),
-          const SizedBox(height: 24),
-          Text(
-            title,
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
-                ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Coming in next iteration',
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.4),
-              fontSize: 14,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class _MeshPainter extends CustomPainter {
   final double animValue;

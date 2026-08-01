@@ -18,7 +18,7 @@ class _DeviceSharingPageState extends State<DeviceSharingPage> {
     _SharedDevice('Printer', Icons.print_rounded, 'Office HP', false, 0, 5, 'ReadOnly'),
   ];
 
-  String _clipboardContent = 'Hello from another device!';
+  final String _clipboardContent = 'Hello from another device!';
 
   @override
   Widget build(BuildContext context) {
@@ -148,7 +148,7 @@ class _DeviceSharingPageState extends State<DeviceSharingPage> {
               ),
               Switch(
                 value: d.shared,
-                activeColor: const Color(0xFF00D4AA),
+                activeThumbColor: const Color(0xFF00D4AA),
                 onChanged: (v) => setState(() => d.shared = v),
               ),
             ],

@@ -79,8 +79,8 @@ class StoragePage extends StatelessWidget {
             children: [
               const Icon(Icons.sd_storage_rounded, color: Color(0xFFF59E0B), size: 28),
               const SizedBox(width: 12),
-              const Text('${used} GB', style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w700)),
-              Text(' / ${total} GB',
+              Text('$used GB', style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w700)),
+              Text(' / $total GB',
                   style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 16)),
               const Spacer(),
               Container(

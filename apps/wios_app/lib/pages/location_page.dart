@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
 
 /// Location/navigation page — floor plans, indoor positioning, asset tracking.
 class LocationPage extends StatefulWidget {

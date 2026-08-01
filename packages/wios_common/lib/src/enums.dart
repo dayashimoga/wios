@@ -1,4 +1,5 @@
 /// WIOS shared enumerations.
+library;
 
 /// Connection state of a peer.
 enum ConnectionState {

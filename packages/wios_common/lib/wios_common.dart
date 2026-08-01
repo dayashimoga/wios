@@ -1,5 +1,4 @@
 /// WIOS Common - Shared types, constants, and utilities.
-library wios_common;
 
 export 'src/constants.dart';
 export 'src/enums.dart';

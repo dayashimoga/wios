@@ -1,5 +1,4 @@
 /// WIOS UI - Theme, design system, and shared widgets.
-library wios_ui;
 
 export 'src/theme/wios_theme.dart';
 export 'src/theme/wios_colors.dart';
