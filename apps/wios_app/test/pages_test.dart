@@ -9,14 +9,14 @@ void main() {
   group('MeshPage', () {
     testWidgets('renders header and scan button', (tester) async {
       await tester.pumpWidget(const MaterialApp(home: Scaffold(body: MeshPage())));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 500));
       expect(find.text('Mesh Network'), findsOneWidget);
       expect(find.text('Scan'), findsOneWidget);
     });
 
     testWidgets('scan button toggles to stop', (tester) async {
       await tester.pumpWidget(const MaterialApp(home: Scaffold(body: MeshPage())));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 500));
       await tester.tap(find.text('Scan'));
       await tester.pump(const Duration(milliseconds: 500));
       expect(find.text('Stop'), findsOneWidget);
