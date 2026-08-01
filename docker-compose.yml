@@ -1,0 +1,39 @@
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - .:/workspace
+      - cargo-cache:/usr/local/cargo/registry
+      - cargo-git:/usr/local/cargo/git
+      - rust-target:/workspace/crates/target
+    ports:
+      - "8080:8080"    # REST API
+      - "8082:8082"    # Flutter web dev server
+      - "50051:50051"  # gRPC
+    environment:
+      - WIOS_LOG_LEVEL=debug
+      - CARGO_TARGET_DIR=/workspace/crates/target
+    working_dir: /workspace
+    stdin_open: true
+    tty: true
+
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: wios
+      POSTGRES_USER: wios
+      POSTGRES_PASSWORD: wios_dev
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    profiles:
+      - postgres
+
+volumes:
+  cargo-cache:
+  cargo-git:
+  rust-target:
+  postgres_data:

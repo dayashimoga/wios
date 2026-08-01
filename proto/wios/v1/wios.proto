@@ -1,0 +1,99 @@
+syntax = "proto3";
+
+package wios.v1;
+
+option java_package = "com.wios.proto.v1";
+
+// Health check service
+service WiosService {
+  rpc HealthCheck (HealthCheckRequest) returns (HealthCheckResponse);
+  rpc GetNodeInfo (NodeInfoRequest) returns (NodeInfoResponse);
+  rpc ListPeers (ListPeersRequest) returns (ListPeersResponse);
+  rpc SendMessage (SendMessageRequest) returns (SendMessageResponse);
+  rpc GetStorageStats (StorageStatsRequest) returns (StorageStatsResponse);
+  rpc RunInference (InferenceRequest) returns (InferenceResponse);
+  rpc SubmitTask (SubmitTaskRequest) returns (SubmitTaskResponse);
+}
+
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+  string status = 1;
+  string version = 2;
+  uint64 uptime_secs = 3;
+}
+
+message NodeInfoRequest {
+  string node_name = 1;
+}
+
+message NodeInfoResponse {
+  string node_id = 1;
+  string name = 2;
+  string platform = 3;
+  uint32 cpu_cores = 4;
+  uint64 ram_mb = 5;
+}
+
+message ListPeersRequest {
+  string discovery_method = 1; // "mdns", "kademlia", "all"
+}
+
+message PeerInfo {
+  string node_id = 1;
+  repeated string addresses = 2;
+  string discovery_method = 3;
+  string last_seen = 4;
+}
+
+message ListPeersResponse {
+  repeated PeerInfo peers = 1;
+}
+
+message SendMessageRequest {
+  string topic = 1;
+  bytes payload = 2;
+  string recipient_id = 3; // empty = broadcast
+  bool encrypted = 4;
+}
+
+message SendMessageResponse {
+  string message_id = 1;
+  bool delivered = 2;
+}
+
+message StorageStatsRequest {}
+
+message StorageStatsResponse {
+  uint64 used_bytes = 1;
+  uint64 total_bytes = 2;
+  uint32 file_count = 3;
+  uint32 chunk_count = 4;
+  double dedup_ratio = 5;
+}
+
+message InferenceRequest {
+  string model_id = 1;
+  bytes input_data = 2;
+  string backend = 3; // "onnx", "tflite", "llama"
+}
+
+message InferenceResponse {
+  bytes output_data = 1;
+  uint64 latency_ms = 2;
+  string model_id = 3;
+}
+
+message SubmitTaskRequest {
+  string task_type = 1;
+  bytes payload = 2;
+  uint32 priority = 3;
+  uint32 min_cpu_cores = 4;
+  uint64 min_ram_mb = 5;
+}
+
+message SubmitTaskResponse {
+  string task_id = 1;
+  string assigned_node = 2;
+  string status = 3;
+}

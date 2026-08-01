@@ -1,0 +1,22 @@
+[package]
+name = "wios-tests"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+description = "Integration tests and benchmarks for WIOS"
+
+[dev-dependencies]
+wios-core = { path = "../wios-core" }
+wios-crypto = { path = "../wios-crypto" }
+wios-storage = { path = "../wios-storage" }
+wios-network = { path = "../wios-network" }
+wios-ai = { path = "../wios-ai" }
+wios-compute = { path = "../wios-compute" }
+tempfile = { workspace = true }
+tokio = { workspace = true }
+ring = { workspace = true }
+
+[lib]
+name = "wios_tests"
+path = "lib.rs"

@@ -1,0 +1,55 @@
+# WIOS Default Configuration
+# Copy to ~/.wios/config.toml and customize
+
+[node]
+name = "my-wios-node"
+data_dir = "~/.wios"
+max_connections = 256
+
+[network]
+listen_addresses = ["/ip4/0.0.0.0/tcp/0", "/ip4/0.0.0.0/udp/0/quic-v1"]
+bootstrap_peers = []
+mdns_enabled = true
+dht_enabled = true
+gossipsub_enabled = true
+max_peers = 64
+connection_timeout_secs = 30
+relay_enabled = true
+
+[storage]
+sqlite_path = "~/.wios/wios.db"
+rocksdb_path = "~/.wios/rocksdb"
+encrypt_at_rest = true
+max_quota_bytes = 0
+sync_interval_secs = 30
+
+[security]
+keystore_path = "~/.wios/keystore"
+zero_trust = true
+session_timeout_secs = 3600
+max_login_attempts = 5
+lockout_duration_secs = 300
+audit_logging = true
+
+[ai]
+models_dir = "~/.wios/models"
+max_memory_mb = 2048
+inference_threads = 4
+gpu_enabled = false
+
+[compute]
+max_shared_cores = 2
+max_shared_ram_mb = 1024
+max_shared_storage_mb = 4096
+share_gpu = false
+task_timeout_secs = 300
+
+[logging]
+level = "info"
+format = "pretty"
+
+[api]
+rest_address = "127.0.0.1:8080"
+grpc_address = "127.0.0.1:50051"
+cors_enabled = true
+rate_limit_rps = 100

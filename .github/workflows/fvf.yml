@@ -1,0 +1,212 @@
+name: Feature Verification Framework
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: fvf-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── Stage 1: Format & Lint ────────────────────────────────────
+  format-lint:
+    name: Format & Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+        working-directory: crates
+      - name: Clippy lint
+        run: cargo clippy --workspace -- -D warnings
+        working-directory: crates
+
+  # ── Stage 2: Security & Dependency Scans ──────────────────────
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install cargo-audit
+        run: cargo install cargo-audit
+      - name: Run security audit
+        run: cargo audit
+        working-directory: crates
+      - name: Check for known vulnerabilities
+        run: cargo audit --deny warnings
+        working-directory: crates
+
+  # ── Stage 3: Feature & Doc Validation ─────────────────────────
+  fvf-validation:
+    name: Feature Verification
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install FVF dependencies
+        run: pip install -r tools/fvf/requirements.txt
+      - name: Validate Feature Registry
+        run: python tools/fvf/validate_features.py
+      - name: Validate Documentation
+        run: python tools/fvf/validate_docs.py
+      - name: Generate Dashboard
+        run: python tools/fvf/generate_dashboard.py
+      - name: Upload RTM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rtm
+          path: |
+            docs/RTM.md
+            docs/rtm.json
+            docs/DASHBOARD.md
+
+  # ── Stage 4: Tests & Coverage ─────────────────────────────────
+  tests:
+    name: Tests & Coverage
+    needs: [format-lint, security-scan, fvf-validation]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Run all tests
+        run: cargo test --workspace
+        working-directory: crates
+      - name: Install tarpaulin
+        run: cargo install cargo-tarpaulin
+      - name: Generate coverage report
+        run: |
+          cargo tarpaulin --workspace --out xml --output-dir ../coverage \
+            --skip-clean --timeout 120
+        working-directory: crates
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/
+
+  # ── Stage 5: Multi-Platform Builds ────────────────────────────
+  build-web:
+    name: Build Web
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - run: flutter pub get
+        working-directory: apps/wios_app
+      - run: flutter build web --release
+        working-directory: apps/wios_app
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: apps/wios_app/build/web/
+
+  build-android:
+    name: Build Android
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - run: flutter pub get
+        working-directory: apps/wios_app
+      - run: flutter build apk --release
+        working-directory: apps/wios_app
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: apps/wios_app/build/app/outputs/flutter-apk/
+
+  build-windows:
+    name: Build Windows
+    needs: tests
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - run: flutter pub get
+        working-directory: apps/wios_app
+      - run: flutter build windows --release
+        working-directory: apps/wios_app
+
+  build-linux:
+    name: Build Linux
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - name: Install Linux deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config \
+            libgtk-3-dev liblzma-dev libstdc++-12-dev
+      - run: flutter pub get
+        working-directory: apps/wios_app
+      - run: flutter build linux --release
+        working-directory: apps/wios_app
+
+  build-cli:
+    name: Build CLI
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build wios-cli
+        run: cargo build --release -p wios-cli
+        working-directory: crates
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wios-cli
+          path: crates/target/release/wios
+
+  # ── Stage 6: SBOM & Checksums ─────────────────────────────────
+  sbom:
+    name: SBOM & Checksums
+    needs: [build-web, build-android, build-cli]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install CycloneDX
+        run: cargo install cargo-cyclonedx
+      - name: Generate SBOM
+        run: cargo cyclonedx --format json
+        working-directory: crates
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+      - name: Generate checksums
+        run: |
+          find artifacts/ -type f | sort | while read f; do
+            sha256sum "$f" >> checksums.sha256
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sbom-checksums
+          path: |
+            crates/bom.json
+            checksums.sha256

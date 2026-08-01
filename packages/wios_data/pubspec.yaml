@@ -1,0 +1,23 @@
+name: wios_data
+description: Data layer - FFI bridge implementations and data sources for WIOS
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.12.2
+  flutter: ">=3.40.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  wios_common:
+    path: ../wios_common
+  wios_domain:
+    path: ../wios_domain
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:

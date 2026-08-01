@@ -1,0 +1,22 @@
+name: wios_ui
+description: UI layer - Theme, design system, and shared widgets for WIOS
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.12.2
+  flutter: ">=3.40.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  wios_common:
+    path: ../wios_common
+  google_fonts: ^6.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:

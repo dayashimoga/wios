@@ -1,0 +1,154 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*.*.*']
+
+env:
+  CARGO_TERM_COLOR: always
+  FLUTTER_VERSION: '3.44.6'
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          draft: false
+          prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') || contains(github.ref, 'rc') }}
+
+  rust-tests:
+    name: Rust Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test --workspace --verbose
+        working-directory: crates
+
+  build-web:
+    name: Build Web
+    needs: [rust-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - run: flutter build web --release
+        working-directory: apps/wios_app
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wios-web
+          path: apps/wios_app/build/web
+
+  build-android:
+    name: Build Android
+    needs: [rust-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - run: flutter build apk --release
+        working-directory: apps/wios_app
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wios-android
+          path: apps/wios_app/build/app/outputs/flutter-apk/app-release.apk
+
+  build-windows:
+    name: Build Windows
+    needs: [rust-tests]
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - run: flutter build windows --release
+        working-directory: apps/wios_app
+      - name: Archive
+        run: Compress-Archive -Path apps/wios_app/build/windows/x64/runner/Release/* -DestinationPath wios-windows.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wios-windows
+          path: wios-windows.zip
+
+  build-linux:
+    name: Build Linux
+    needs: [rust-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build libgtk-3-dev
+      - run: flutter build linux --release
+        working-directory: apps/wios_app
+      - name: Archive
+        run: tar -czf wios-linux.tar.gz -C apps/wios_app/build/linux/x64/release/bundle .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wios-linux
+          path: wios-linux.tar.gz
+
+  build-macos:
+    name: Build macOS
+    needs: [rust-tests]
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - run: flutter build macos --release
+        working-directory: apps/wios_app
+      - name: Archive
+        run: |
+          cd apps/wios_app/build/macos/Build/Products/Release
+          tar -czf ../../../../../../../wios-macos.tar.gz *.app
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wios-macos
+          path: wios-macos.tar.gz
+
+  upload-assets:
+    name: Upload Release Assets
+    needs: [create-release, build-web, build-android, build-windows, build-linux, build-macos]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            artifacts/wios-windows/wios-windows.zip
+            artifacts/wios-linux/wios-linux.tar.gz
+            artifacts/wios-macos/wios-macos.tar.gz
+            artifacts/wios-android/**/*.apk

@@ -1,0 +1,14 @@
+[book]
+title = "WIOS Developer Guide"
+authors = ["WIOS Team"]
+language = "en"
+multilingual = false
+src = "src"
+
+[build]
+build-dir = "../../build/book"
+
+[output.html]
+default-theme = "navy"
+preferred-dark-theme = "navy"
+git-repository-url = "https://github.com/your-org/wios"

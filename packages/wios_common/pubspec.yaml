@@ -1,0 +1,24 @@
+name: wios_common
+description: Shared constants, enums, and utilities for WIOS
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.12.2
+  flutter: ">=3.40.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  equatable: ^2.0.7
+  json_annotation: ^4.9.0
+  intl: ^0.20.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  build_runner: ^2.4.0
+  json_serializable: ^6.8.0
+
+flutter:

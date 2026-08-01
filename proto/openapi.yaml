@@ -1,0 +1,203 @@
+openapi: 3.1.0
+info:
+  title: WIOS REST API
+  version: 0.1.0
+  description: Wireless Intelligence Operating System — REST API
+  license:
+    name: Apache-2.0
+
+servers:
+  - url: http://localhost:3000
+    description: Local development
+
+paths:
+  /api/v1/health:
+    get:
+      summary: Health check
+      operationId: healthCheck
+      responses:
+        "200":
+          description: System health status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+
+  /api/v1/system:
+    get:
+      summary: System information
+      operationId: getSystemInfo
+      responses:
+        "200":
+          description: Node and platform info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SystemInfo"
+
+  /api/v1/peers:
+    get:
+      summary: List connected mesh peers
+      operationId: listPeers
+      parameters:
+        - name: method
+          in: query
+          schema:
+            type: string
+            enum: [mdns, kademlia, all]
+      responses:
+        "200":
+          description: List of peers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PeerInfo"
+
+  /api/v1/messages:
+    post:
+      summary: Send an encrypted message
+      operationId: sendMessage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendMessageRequest"
+      responses:
+        "200":
+          description: Message sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SendMessageResponse"
+
+  /api/v1/storage/stats:
+    get:
+      summary: Get storage statistics
+      operationId: getStorageStats
+      responses:
+        "200":
+          description: Storage usage
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StorageStats"
+
+  /api/v1/ai/infer:
+    post:
+      summary: Run AI inference
+      operationId: runInference
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InferenceRequest"
+      responses:
+        "200":
+          description: Inference result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InferenceResponse"
+
+  /api/v1/compute/tasks:
+    post:
+      summary: Submit a distributed compute task
+      operationId: submitTask
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitTaskRequest"
+      responses:
+        "201":
+          description: Task submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubmitTaskResponse"
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status: { type: string }
+        version: { type: string }
+        uptime_secs: { type: integer }
+
+    SystemInfo:
+      type: object
+      properties:
+        node_id: { type: string }
+        name: { type: string }
+        platform: { type: string }
+        version: { type: string }
+        cpu_cores: { type: integer }
+        ram_mb: { type: integer }
+
+    PeerInfo:
+      type: object
+      properties:
+        node_id: { type: string }
+        addresses: { type: array, items: { type: string } }
+        discovery_method: { type: string }
+        last_seen: { type: string, format: date-time }
+
+    SendMessageRequest:
+      type: object
+      required: [topic, payload]
+      properties:
+        topic: { type: string }
+        payload: { type: string }
+        recipient_id: { type: string }
+
+    SendMessageResponse:
+      type: object
+      properties:
+        message_id: { type: string }
+        delivered: { type: boolean }
+
+    StorageStats:
+      type: object
+      properties:
+        used_bytes: { type: integer }
+        total_bytes: { type: integer }
+        file_count: { type: integer }
+        dedup_ratio: { type: number }
+
+    InferenceRequest:
+      type: object
+      required: [model_id]
+      properties:
+        model_id: { type: string }
+        input_data: { type: string }
+        backend: { type: string, enum: [onnx, tflite, llama] }
+
+    InferenceResponse:
+      type: object
+      properties:
+        output_data: { type: string }
+        latency_ms: { type: integer }
+        model_id: { type: string }
+
+    SubmitTaskRequest:
+      type: object
+      required: [task_type, payload]
+      properties:
+        task_type: { type: string }
+        payload: { type: string }
+        priority: { type: integer }
+        min_cpu_cores: { type: integer }
+        min_ram_mb: { type: integer }
+
+    SubmitTaskResponse:
+      type: object
+      properties:
+        task_id: { type: string }
+        assigned_node: { type: string }
+        status: { type: string }

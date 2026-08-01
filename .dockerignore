@@ -1,0 +1,26 @@
+# Ignore git
+.git
+.gitignore
+
+# Ignore Docker files (prevent recursive builds)
+Dockerfile*
+docker-compose*.yml
+
+# Ignore IDE files
+.idea/
+.vscode/
+*.iml
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore build artifacts (they're in Docker volumes)
+crates/target/
+**/build/
+**/.dart_tool/
+coverage/
+
+# Ignore docs/assets not needed in build
+*.md
+LICENSE

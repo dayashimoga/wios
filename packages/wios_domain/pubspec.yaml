@@ -1,0 +1,23 @@
+name: wios_domain
+description: Domain layer - repositories, use cases, and BLoC state management for WIOS
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.12.2
+  flutter: ">=3.40.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  wios_common:
+    path: ../wios_common
+  equatable: ^2.0.7
+  flutter_bloc: ^9.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:

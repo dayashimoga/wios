@@ -1,0 +1,73 @@
+name: wios
+repository:
+  type: git
+  origin: https://github.com/user/wios.git
+  branch: main
+
+packages:
+  - apps/**
+  - packages/**
+
+command:
+  version:
+    message: "chore(release): publish %s"
+    includeScopes: true
+    linkToCommits: true
+
+  bootstrap:
+    usePubspecOverrides: true
+    enforceLockfile: false
+
+scripts:
+  analyze:
+    run: dart analyze --fatal-infos
+    exec:
+      concurrency: 4
+    packageFilters:
+      flutter: true
+      dirExists: lib
+
+  test:
+    run: flutter test --coverage
+    exec:
+      concurrency: 4
+    packageFilters:
+      flutter: true
+      dirExists: test
+
+  format:
+    run: dart format .
+    exec:
+      concurrency: 4
+
+  build:android:
+    run: flutter build apk --release
+    packageFilters:
+      scope: "wios_app"
+
+  build:web:
+    run: flutter build web --release
+    packageFilters:
+      scope: "wios_app"
+
+  build:windows:
+    run: flutter build windows --release
+    packageFilters:
+      scope: "wios_app"
+
+  build:linux:
+    run: flutter build linux --release
+    packageFilters:
+      scope: "wios_app"
+
+  clean:
+    run: flutter clean
+    exec:
+      concurrency: 4
+
+  codegen:
+    run: dart run build_runner build --delete-conflicting-outputs
+    exec:
+      concurrency: 1
+    packageFilters:
+      dependsOn: "build_runner"

@@ -1,0 +1,78 @@
+# ===== Rust =====
+**/target/
+**/*.rs.bk
+Cargo.lock
+!crates/Cargo.lock
+
+# ===== Flutter/Dart =====
+**/.dart_tool/
+**/.packages
+**/build/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.pub-cache/
+**/.pub/
+**/pubspec.lock
+!apps/wios_app/pubspec.lock
+
+# ===== IDE =====
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+
+# ===== Docker =====
+docker-compose.override.yml
+
+# ===== Environment =====
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+!*.key.example
+
+# ===== Coverage =====
+coverage/
+lcov.info
+*.lcov
+tarpaulin-report.html
+
+# ===== Build artifacts =====
+dist/
+release/
+*.apk
+*.aab
+*.ipa
+*.exe
+*.msi
+*.dmg
+*.deb
+*.rpm
+*.AppImage
+*.snap
+
+# ===== Generated =====
+**/*.g.dart
+**/*.freezed.dart
+**/generated/
+**/frb_generated/
+
+# ===== Misc =====
+*.log
+*.tmp
+*.bak
+node_modules/

@@ -1,0 +1,17 @@
+name: wios
+version: "0.1.0"
+description: WIOS - Wireless Intelligence Operating System workspace root
+publish_to: none
+homepage: https://github.com/user/wios
+repository: https://github.com/user/wios
+
+environment:
+  sdk: ^3.12.2
+  flutter: ">=3.40.0"
+
+workspace:
+  - apps/wios_app
+  - packages/wios_common
+  - packages/wios_data
+  - packages/wios_domain
+  - packages/wios_ui

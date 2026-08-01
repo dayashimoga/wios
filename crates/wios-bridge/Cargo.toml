@@ -1,0 +1,25 @@
+[package]
+name = "wios-bridge"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "flutter_rust_bridge API surface for WIOS"
+
+[dependencies]
+wios-core = { path = "../wios-core" }
+wios-crypto = { path = "../wios-crypto" }
+wios-storage = { path = "../wios-storage" }
+wios-network = { path = "../wios-network" }
+wios-ai = { path = "../wios-ai" }
+wios-compute = { path = "../wios-compute" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }

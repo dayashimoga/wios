@@ -1,0 +1,790 @@
+# WIOS Feature Registry
+# Machine-readable registry of all features with traceability links.
+# Used by FVF validation scripts to generate RTM and verify completeness.
+
+metadata:
+  project: WIOS
+  version: "0.5.0"
+  last_updated: "2026-08-01"
+  total_features: 62
+
+features:
+  # ── Communication Layer ──────────────────────────────────────
+  - id: FEAT-COMM-001
+    name: Mesh Networking
+    module: wios-network
+    requirement: REQ-001
+    code: [crates/wios-network/src/mesh.rs]
+    api: [GET /api/v1/peers, POST /api/v1/peers/connect]
+    grpc: [PeerService.ListPeers]
+    ui: [pages/mesh_page.dart]
+    tests: [mesh::tests]
+    docs: [ARCHITECTURE.md, API.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-COMM-002
+    name: Offline Messaging
+    module: wios-network
+    requirement: REQ-002
+    code: [crates/wios-network/src/offline_queue.rs]
+    api: [POST /api/v1/messages]
+    grpc: [MessageService.SendMessage]
+    ui: [pages/messages_page.dart]
+    tests: [offline_queue::tests]
+    docs: [ARCHITECTURE.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-COMM-003
+    name: Voice/Video Calling
+    module: wios-network
+    requirement: REQ-003
+    code: [crates/wios-network/src/signaling.rs]
+    api: []
+    grpc: []
+    ui: [pages/mesh_page.dart]
+    tests: [signaling::tests]
+    docs: [ARCHITECTURE.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-COMM-004
+    name: Group Communication
+    module: wios-network
+    requirement: REQ-004
+    code: [crates/wios-network/src/gossip.rs]
+    api: [POST /api/v1/messages]
+    grpc: [MessageService.PublishTopic]
+    ui: [pages/messages_page.dart]
+    tests: [gossip::tests]
+    docs: [ARCHITECTURE.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-COMM-005
+    name: Multi-hop Routing
+    module: wios-network
+    requirement: REQ-005
+    code: [crates/wios-network/src/routing.rs]
+    api: []
+    grpc: []
+    ui: []
+    tests: [routing::tests]
+    docs: [ARCHITECTURE.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-COMM-006
+    name: Device Discovery
+    module: wios-network
+    requirement: REQ-006
+    code: [crates/wios-network/src/discovery.rs, crates/wios-network/src/discovery_service.rs]
+    api: [GET /api/v1/peers]
+    grpc: [PeerService.DiscoverPeers]
+    ui: [pages/mesh_page.dart]
+    tests: [discovery::tests, discovery_service::tests]
+    docs: [ARCHITECTURE.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-COMM-007
+    name: Emergency SOS
+    module: wios-network
+    requirement: REQ-007
+    code: [crates/wios-network/src/emergency.rs]
+    api: []
+    grpc: []
+    ui: [pages/sos_page.dart]
+    tests: [emergency::tests]
+    docs: [ARCHITECTURE.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-COMM-008
+    name: Transport Providers
+    module: wios-network
+    requirement: REQ-008
+    code: [crates/wios-network/src/transport_provider.rs]
+    api: []
+    grpc: []
+    ui: []
+    tests: [transport_provider::tests]
+    docs: [ARCHITECTURE.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-COMM-009
+    name: Compression
+    module: wios-network
+    requirement: REQ-009
+    code: [crates/wios-network/src/compression.rs]
+    api: []
+    grpc: []
+    ui: []
+    tests: [compression::tests]
+    docs: [ARCHITECTURE.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-COMM-010
+    name: Delta Sync
+    module: wios-network
+    requirement: REQ-010
+    code: [crates/wios-network/src/delta_sync.rs]
+    api: []
+    grpc: []
+    ui: []
+    tests: [delta_sync::tests]
+    docs: [ARCHITECTURE.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-COMM-011
+    name: File Transfer
+    module: wios-network
+    requirement: REQ-011
+    code: [crates/wios-network/src/file_transfer.rs]
+    api: []
+    grpc: []
+    ui: [pages/storage_page.dart]
+    tests: [file_transfer::tests]
+    docs: [ARCHITECTURE.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  # ── Sensing Layer ────────────────────────────────────────────
+  - id: FEAT-SENS-001
+    name: RF Heatmap & RSSI Positioning
+    module: wios-network
+    requirement: REQ-012
+    code: [crates/wios-network/src/sensing.rs]
+    api: []
+    grpc: []
+    ui: [pages/sensing_page.dart]
+    tests: [sensing::tests]
+    docs: [ARCHITECTURE.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-SENS-002
+    name: Sensor Fusion
+    module: wios-network
+    requirement: REQ-013
+    code: [crates/wios-network/src/sensor_fusion.rs]
+    api: []
+    grpc: []
+    ui: [pages/sensing_page.dart]
+    tests: [sensor_fusion::tests]
+    docs: [ARCHITECTURE.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-SENS-003
+    name: Automation Rules
+    module: wios-network
+    requirement: REQ-014
+    code: [crates/wios-network/src/automation.rs]
+    api: []
+    grpc: []
+    ui: [pages/settings_page.dart]
+    tests: [automation::tests]
+    docs: [ARCHITECTURE.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  # ── Location Layer ───────────────────────────────────────────
+  - id: FEAT-LOC-001
+    name: Floor Plan Navigation
+    module: wios-network
+    requirement: REQ-015
+    code: [crates/wios-network/src/floor_plan.rs]
+    api: []
+    grpc: []
+    ui: [pages/location_page.dart]
+    tests: [floor_plan::tests]
+    docs: [ARCHITECTURE.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-LOC-002
+    name: Asset Tracking
+    module: wios-network
+    requirement: REQ-016
+    code: [crates/wios-network/src/asset_tracker.rs]
+    api: []
+    grpc: []
+    ui: [pages/location_page.dart]
+    tests: [asset_tracker::tests]
+    docs: [ARCHITECTURE.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  # ── Device Layer ─────────────────────────────────────────────
+  - id: FEAT-DEV-001
+    name: Universal Device Bus
+    module: wios-compute
+    requirement: REQ-017
+    code: [crates/wios-compute/src/device_bus.rs]
+    api: []
+    grpc: []
+    ui: [pages/device_sharing_page.dart]
+    tests: [device_bus::tests]
+    docs: [ARCHITECTURE.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  # ── Storage Layer ────────────────────────────────────────────
+  - id: FEAT-STOR-001
+    name: SQLite Backend
+    module: wios-storage
+    requirement: REQ-018
+    code: [crates/wios-storage/src/sqlite.rs]
+    api: [GET /api/v1/storage/stats]
+    grpc: [StorageService.GetStats]
+    ui: [pages/storage_page.dart]
+    tests: [sqlite::tests]
+    docs: [ARCHITECTURE.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-STOR-002
+    name: CRDT Sync Engine
+    module: wios-storage
+    requirement: REQ-019
+    code: [crates/wios-storage/src/sync_engine.rs]
+    api: []
+    grpc: []
+    ui: []
+    tests: [sync_engine::tests]
+    docs: [ARCHITECTURE.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-STOR-003
+    name: Chunking & Dedup
+    module: wios-storage
+    requirement: REQ-020
+    code: [crates/wios-storage/src/chunking.rs]
+    api: []
+    grpc: []
+    ui: []
+    tests: [chunking::tests]
+    docs: [ARCHITECTURE.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-STOR-004
+    name: Storage Quota
+    module: wios-storage
+    requirement: REQ-021
+    code: [crates/wios-storage/src/quota.rs]
+    api: []
+    grpc: []
+    ui: [pages/storage_page.dart]
+    tests: [quota::tests]
+    docs: [ARCHITECTURE.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-STOR-005
+    name: Replication
+    module: wios-storage
+    requirement: REQ-022
+    code: [crates/wios-storage/src/replication.rs]
+    api: []
+    grpc: []
+    ui: []
+    tests: [replication::tests]
+    docs: [ARCHITECTURE.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-STOR-006
+    name: Content Versioning
+    module: wios-storage
+    requirement: REQ-023
+    code: [crates/wios-storage/src/versioning.rs]
+    api: []
+    grpc: []
+    ui: []
+    tests: [versioning::tests]
+    docs: [ARCHITECTURE.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-STOR-007
+    name: Backup & Restore
+    module: wios-storage
+    requirement: REQ-024
+    code: [crates/wios-storage/src/backup.rs]
+    api: []
+    grpc: []
+    ui: []
+    tests: [backup::tests]
+    docs: [ARCHITECTURE.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  # ── AI Layer ─────────────────────────────────────────────────
+  - id: FEAT-AI-001
+    name: Inference Engine
+    module: wios-ai
+    requirement: REQ-025
+    code: [crates/wios-ai/src/engine.rs]
+    api: [POST /api/v1/ai/infer]
+    grpc: [AiService.RunInference]
+    ui: [pages/ai_page.dart]
+    tests: [engine::tests]
+    docs: [ARCHITECTURE.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-AI-002
+    name: Model Manager
+    module: wios-ai
+    requirement: REQ-026
+    code: [crates/wios-ai/src/model_manager.rs]
+    api: []
+    grpc: []
+    ui: [pages/ai_page.dart]
+    tests: [model_manager::tests]
+    docs: [ARCHITECTURE.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-AI-003
+    name: Anomaly Detection
+    module: wios-ai
+    requirement: REQ-027
+    code: [crates/wios-ai/src/intelligence.rs]
+    api: []
+    grpc: []
+    ui: [pages/ai_page.dart]
+    tests: [intelligence::tests]
+    docs: [ARCHITECTURE.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-AI-004
+    name: NLP Intent Parser
+    module: wios-ai
+    requirement: REQ-028
+    code: [crates/wios-ai/src/intelligence.rs]
+    api: []
+    grpc: []
+    ui: []
+    tests: [intelligence::tests]
+    docs: [ARCHITECTURE.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-AI-005
+    name: Workflow Orchestration
+    module: wios-ai
+    requirement: REQ-029
+    code: [crates/wios-ai/src/intelligence.rs]
+    api: []
+    grpc: []
+    ui: []
+    tests: [intelligence::tests]
+    docs: [ARCHITECTURE.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  # ── Compute Layer ────────────────────────────────────────────
+  - id: FEAT-COMP-001
+    name: Task Scheduler
+    module: wios-compute
+    requirement: REQ-030
+    code: [crates/wios-compute/src/scheduler.rs]
+    api: [GET /api/v1/compute/tasks]
+    grpc: [ComputeService.SubmitTask]
+    ui: [pages/compute_page.dart]
+    tests: [scheduler::tests]
+    docs: [ARCHITECTURE.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-COMP-002
+    name: Resource Manager
+    module: wios-compute
+    requirement: REQ-031
+    code: [crates/wios-compute/src/resource.rs]
+    api: []
+    grpc: []
+    ui: [pages/compute_page.dart]
+    tests: [resource::tests]
+    docs: [ARCHITECTURE.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-COMP-003
+    name: Distributed Computing
+    module: wios-compute
+    requirement: REQ-032
+    code: [crates/wios-compute/src/distributed.rs]
+    api: []
+    grpc: []
+    ui: [pages/compute_page.dart]
+    tests: [distributed::tests]
+    docs: [ARCHITECTURE.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  # ── Security Layer ───────────────────────────────────────────
+  - id: FEAT-SEC-001
+    name: AES-256-GCM Encryption
+    module: wios-crypto
+    requirement: REQ-033
+    code: [crates/wios-crypto/src/encryption.rs]
+    api: []
+    grpc: []
+    ui: []
+    tests: [encryption::tests]
+    docs: [SECURITY.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-SEC-002
+    name: Ed25519 Signing
+    module: wios-crypto
+    requirement: REQ-034
+    code: [crates/wios-crypto/src/signing.rs]
+    api: []
+    grpc: []
+    ui: []
+    tests: [signing::tests]
+    docs: [SECURITY.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-SEC-003
+    name: Key Exchange (X25519)
+    module: wios-crypto
+    requirement: REQ-035
+    code: [crates/wios-crypto/src/kex.rs]
+    api: []
+    grpc: []
+    ui: []
+    tests: [kex::tests]
+    docs: [SECURITY.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-SEC-004
+    name: Password Hashing (Argon2)
+    module: wios-crypto
+    requirement: REQ-036
+    code: [crates/wios-crypto/src/hashing.rs]
+    api: []
+    grpc: []
+    ui: [pages/auth_page.dart]
+    tests: [hashing::tests]
+    docs: [SECURITY.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-SEC-005
+    name: MFA/TOTP
+    module: wios-crypto
+    requirement: REQ-037
+    code: [crates/wios-crypto/src/mfa.rs]
+    api: []
+    grpc: []
+    ui: [pages/auth_page.dart]
+    tests: [mfa::tests]
+    docs: [SECURITY.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-SEC-006
+    name: RBAC
+    module: wios-crypto
+    requirement: REQ-038
+    code: [crates/wios-crypto/src/rbac.rs]
+    api: []
+    grpc: []
+    ui: [pages/settings_page.dart]
+    tests: [rbac::tests]
+    docs: [SECURITY.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-SEC-007
+    name: Session Management
+    module: wios-crypto
+    requirement: REQ-039
+    code: [crates/wios-crypto/src/session.rs]
+    api: []
+    grpc: []
+    ui: []
+    tests: [session::tests]
+    docs: [SECURITY.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-SEC-008
+    name: Identity & Certificates
+    module: wios-crypto
+    requirement: REQ-040
+    code: [crates/wios-crypto/src/identity.rs]
+    api: []
+    grpc: []
+    ui: []
+    tests: [identity::tests]
+    docs: [SECURITY.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-SEC-009
+    name: Audit Logging
+    module: wios-crypto
+    requirement: REQ-041
+    code: [crates/wios-crypto/src/audit.rs]
+    api: []
+    grpc: []
+    ui: []
+    tests: [audit::tests]
+    docs: [SECURITY.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-SEC-010
+    name: Key Store
+    module: wios-crypto
+    requirement: REQ-042
+    code: [crates/wios-crypto/src/keystore.rs]
+    api: []
+    grpc: []
+    ui: []
+    tests: [keystore::tests]
+    docs: [SECURITY.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-SEC-011
+    name: Passkeys (WebAuthn)
+    module: wios-crypto
+    requirement: REQ-043
+    code: [crates/wios-crypto/src/extended.rs]
+    api: []
+    grpc: []
+    ui: [pages/auth_page.dart]
+    tests: [extended::tests]
+    docs: [SECURITY.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-SEC-012
+    name: Device Pairing
+    module: wios-crypto
+    requirement: REQ-044
+    code: [crates/wios-crypto/src/extended.rs]
+    api: []
+    grpc: []
+    ui: [pages/device_sharing_page.dart]
+    tests: [extended::tests]
+    docs: [SECURITY.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-SEC-013
+    name: Secrets Vault
+    module: wios-crypto
+    requirement: REQ-045
+    code: [crates/wios-crypto/src/extended.rs]
+    api: []
+    grpc: []
+    ui: []
+    tests: [extended::tests]
+    docs: [SECURITY.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  # ── Developer Platform ───────────────────────────────────────
+  - id: FEAT-DEVP-001
+    name: REST API
+    module: wios-api
+    requirement: REQ-046
+    code: [crates/wios-api/src/rest.rs]
+    api: [GET /api/v1/health, GET /api/v1/system]
+    grpc: []
+    ui: []
+    tests: [rest::tests]
+    docs: [API.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-DEVP-002
+    name: gRPC Service
+    module: wios-api
+    requirement: REQ-047
+    code: [crates/wios-api/src/grpc.rs]
+    api: []
+    grpc: [WiosService.*]
+    ui: []
+    tests: [grpc::tests]
+    docs: [API.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-DEVP-003
+    name: Plugin System
+    module: wios-api
+    requirement: REQ-048
+    code: [crates/wios-api/src/plugin.rs]
+    api: []
+    grpc: []
+    ui: [pages/plugins_page.dart]
+    tests: [plugin::tests]
+    docs: [SDK.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-DEVP-004
+    name: CLI Tool
+    module: wios-cli
+    requirement: REQ-049
+    code: [crates/wios-cli/src/main.rs]
+    api: []
+    grpc: []
+    ui: []
+    tests: []
+    docs: [SDK.md]
+    platforms: [windows, linux, macos]
+    status: complete
+
+  - id: FEAT-DEVP-005
+    name: Bridge (FFI)
+    module: wios-bridge
+    requirement: REQ-050
+    code: [crates/wios-bridge/src/lib.rs]
+    api: []
+    grpc: []
+    ui: []
+    tests: [bridge::tests]
+    docs: [SDK.md]
+    platforms: [android, ios, windows, linux, macos]
+    status: complete
+
+  # ── Hardware Integration ─────────────────────────────────────
+  - id: FEAT-HW-001
+    name: BLE Scanning
+    module: flutter-services
+    requirement: REQ-051
+    code: [apps/wios_app/lib/services/ble_service.dart]
+    api: []
+    grpc: []
+    ui: [pages/mesh_page.dart]
+    tests: []
+    docs: [SDK.md]
+    platforms: [android, ios]
+    status: complete
+
+  - id: FEAT-HW-002
+    name: Camera/Microphone
+    module: flutter-services
+    requirement: REQ-052
+    code: [apps/wios_app/lib/services/media_capture_service.dart]
+    api: []
+    grpc: []
+    ui: [pages/device_sharing_page.dart]
+    tests: []
+    docs: [SDK.md]
+    platforms: [android, ios]
+    status: complete
+
+  - id: FEAT-HW-003
+    name: Platform Keychain
+    module: flutter-services
+    requirement: REQ-053
+    code: [apps/wios_app/lib/services/keychain_service.dart]
+    api: []
+    grpc: []
+    ui: []
+    tests: []
+    docs: [SECURITY.md]
+    platforms: [android, ios]
+    status: complete
+
+  - id: FEAT-HW-004
+    name: WiFi Direct
+    module: flutter-services
+    requirement: REQ-054
+    code: [apps/wios_app/lib/services/wifi_direct_service.dart, apps/wios_app/android/app/src/main/kotlin/com/wios/wios_app/WifiDirectHandler.kt, apps/wios_app/ios/Runner/WifiDirectHandler.swift]
+    api: []
+    grpc: []
+    ui: [pages/mesh_page.dart]
+    tests: []
+    docs: [SDK.md]
+    platforms: [android, ios]
+    status: complete
+
+  - id: FEAT-HW-005
+    name: UWB Ranging
+    module: flutter-services
+    requirement: REQ-055
+    code: [apps/wios_app/lib/services/uwb_service.dart, apps/wios_app/android/app/src/main/kotlin/com/wios/wios_app/UwbHandler.kt, apps/wios_app/ios/Runner/UwbHandler.swift]
+    api: []
+    grpc: []
+    ui: [pages/location_page.dart]
+    tests: []
+    docs: [SDK.md]
+    platforms: [android, ios]
+    status: complete
+
+  # ── UI Layer ─────────────────────────────────────────────────
+  - id: FEAT-UI-001
+    name: Dashboard
+    module: flutter-app
+    requirement: REQ-056
+    code: [apps/wios_app/lib/main.dart]
+    ui: [Dashboard (_DashboardPage)]
+    tests: []
+    docs: []
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-UI-002
+    name: Light/Dark Theme
+    module: flutter-app
+    requirement: REQ-057
+    code: [apps/wios_app/lib/main.dart]
+    ui: [ThemeMode.system]
+    tests: []
+    docs: []
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-UI-003
+    name: Responsive Navigation
+    module: flutter-app
+    requirement: REQ-058
+    code: [apps/wios_app/lib/main.dart]
+    ui: [NavigationRail (desktop), BottomNavigationBar (mobile)]
+    tests: []
+    docs: []
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  # ── Infrastructure ───────────────────────────────────────────
+  - id: FEAT-INFRA-001
+    name: CI/CD Pipeline
+    module: github-actions
+    requirement: REQ-059
+    code: [.github/workflows/ci.yml]
+    tests: []
+    docs: [DEPLOYMENT.md]
+    platforms: [android, ios, windows, linux, macos, web]
+    status: complete
+
+  - id: FEAT-INFRA-002
+    name: Docker
+    module: docker
+    requirement: REQ-060
+    code: [Dockerfile.dev, Dockerfile.prod, docker-compose.yml]
+    tests: []
+    docs: [DEPLOYMENT.md]
+    platforms: [linux]
+    status: complete

@@ -1,0 +1,31 @@
+[package]
+name = "wios-api"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "gRPC/REST API server for WIOS"
+
+[dependencies]
+wios-core = { path = "../wios-core" }
+wios-crypto = { path = "../wios-crypto" }
+wios-storage = { path = "../wios-storage" }
+wios-network = { path = "../wios-network" }
+wios-ai = { path = "../wios-ai" }
+wios-compute = { path = "../wios-compute" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+axum = { workspace = true }
+tower = { workspace = true }
+tower-http = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+async-trait = "0.1"
+
+[dev-dependencies]
+mockall = { workspace = true }
+tempfile = { workspace = true }
