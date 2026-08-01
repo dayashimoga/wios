@@ -1,8 +1,5 @@
 name: wios
-repository:
-  type: git
-  origin: https://github.com/dayashimoga/wios.git
-  branch: main
+repository: https://github.com/dayashimoga/wios
 
 packages:
   - apps/**
