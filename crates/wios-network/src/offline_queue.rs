@@ -67,7 +67,7 @@ impl OfflineQueue {
         }
         queue.push_back(msg);
         // Sort by priority (highest first)
-        queue.make_contiguous().sort_by(|a, b| b.priority.cmp(&a.priority));
+        queue.make_contiguous().sort_by_key(|b| std::cmp::Reverse(b.priority));
         Ok(())
     }
 
@@ -114,6 +114,11 @@ impl OfflineQueue {
     /// Get queue depth.
     pub async fn len(&self) -> usize {
         self.queue.lock().await.len()
+    }
+
+    /// Check if queue is empty.
+    pub async fn is_empty(&self) -> bool {
+        self.queue.lock().await.is_empty()
     }
 
     /// Get queue depth for a specific destination.

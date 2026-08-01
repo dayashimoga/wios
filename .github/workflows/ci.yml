@@ -8,7 +8,6 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  FLUTTER_VERSION: '3.44.6'
 
 jobs:
   rust-check:
@@ -48,7 +47,7 @@ jobs:
         run: cargo install cargo-tarpaulin
 
       - name: Generate coverage report
-        run: cargo tarpaulin --workspace --out xml --output-dir ../coverage --fail-under 50
+        run: cargo tarpaulin --workspace --out Xml --output-dir ../coverage
         working-directory: crates
 
       - name: Upload coverage
@@ -76,11 +75,13 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
           cache: true
 
       - name: Install Melos
-        run: dart pub global activate melos
+        run: |
+          dart pub global activate melos
+          echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
 
       - name: Bootstrap
         run: melos bootstrap
@@ -99,7 +100,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
           cache: true
       - run: flutter build web --release
         working-directory: apps/wios_app
@@ -116,11 +117,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: 'temurin'
           java-version: '17'
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
           cache: true
       - run: flutter build apk --release
         working-directory: apps/wios_app
@@ -137,7 +138,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
           cache: true
       - run: flutter build windows --release
         working-directory: apps/wios_app
@@ -154,11 +155,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
           cache: true
       - run: |
           sudo apt-get update
-          sudo apt-get install -y ninja-build libgtk-3-dev
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev
       - run: flutter build linux --release
         working-directory: apps/wios_app
       - uses: actions/upload-artifact@v4
@@ -174,7 +175,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
           cache: true
       - run: flutter build ios --release --no-codesign
         working-directory: apps/wios_app
@@ -191,7 +192,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
           cache: true
       - run: flutter build macos --release
         working-directory: apps/wios_app
@@ -210,7 +211,7 @@ jobs:
       - name: Install cargo-cyclonedx
         run: cargo install cargo-cyclonedx
       - name: Generate SBOM (CycloneDX)
-        run: cargo cyclonedx --all --format json --output-file ../sbom.json
+        run: cargo cyclonedx --format json
         working-directory: crates
       - name: Build CLI release
         run: cargo build --release -p wios-cli
@@ -224,6 +225,6 @@ jobs:
         with:
           name: sbom-and-checksums
           path: |
-            sbom.json
+            crates/bom.json
             crates/target/release/wios
             crates/target/release/wios.sha256

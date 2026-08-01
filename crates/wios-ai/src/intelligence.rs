@@ -72,6 +72,12 @@ pub struct NlpIntent {
 /// Simple pattern-based NLP processor (production would use llama.cpp).
 pub struct NlpProcessor;
 
+impl Default for NlpProcessor {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl NlpProcessor {
     pub fn new() -> Self { Self }
 

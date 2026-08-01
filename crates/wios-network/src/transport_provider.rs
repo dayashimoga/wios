@@ -112,7 +112,7 @@ impl TransportRegistry {
             .filter(|p| p.is_available())
             .map(|p| p.info())
             .collect();
-        candidates.sort_by(|a, b| b.max_bandwidth_kbps.cmp(&a.max_bandwidth_kbps));
+        candidates.sort_by_key(|b| std::cmp::Reverse(b.max_bandwidth_kbps));
         candidates.first().map(|c| c.transport_type.clone())
     }
 

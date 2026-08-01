@@ -35,11 +35,13 @@ pub enum DistributedTaskStatus {
     Failed,
 }
 
+/// Node hardware capabilities: (cpu_cores, ram_mb, has_gpu).
+pub type NodeCapability = (u32, u64, bool);
+
 /// Mesh task distributor — assigns tasks to capable nodes.
 pub struct TaskDistributor {
     tasks: Arc<RwLock<HashMap<String, DistributedTask>>>,
-    /// Node capabilities: node_id -> (cpu_cores, ram_mb, has_gpu)
-    capabilities: Arc<RwLock<HashMap<String, (u32, u64, bool)>>>,
+    capabilities: Arc<RwLock<HashMap<String, NodeCapability>>>,
 }
 
 impl TaskDistributor {

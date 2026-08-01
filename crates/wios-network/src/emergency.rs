@@ -132,7 +132,7 @@ impl SosManager {
             .filter(|a| !a.resolved)
             .cloned()
             .collect();
-        active.sort_by(|a, b| b.severity.cmp(&a.severity));
+        active.sort_by_key(|b| std::cmp::Reverse(b.severity));
         active
     }
 

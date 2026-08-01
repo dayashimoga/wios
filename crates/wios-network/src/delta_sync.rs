@@ -72,7 +72,7 @@ pub fn compute_delta(source: &[u8], target: &[u8], block_size: usize) -> Delta {
             while insert_end < target.len() {
                 let rem = target.len() - insert_end;
                 let cl = block_size.min(rem);
-                if cl >= block_size && source_blocks.contains_key(&target[insert_end..insert_end + cl].to_vec()) {
+                if cl >= block_size && source_blocks.contains_key(&target[insert_end..insert_end + cl]) {
                     break;
                 }
                 insert_end += 1;

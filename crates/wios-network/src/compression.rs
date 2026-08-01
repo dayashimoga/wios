@@ -30,7 +30,7 @@ pub fn decompress(data: &[u8], algo: CompressionAlgo) -> WiosResult<Vec<u8>> {
     match algo {
         CompressionAlgo::None => Ok(data.to_vec()),
         CompressionAlgo::Lz4 | CompressionAlgo::Zstd => {
-            rle_decompress(data).map_err(|e| WiosError::Storage(e))
+            rle_decompress(data).map_err(WiosError::Storage)
         }
     }
 }

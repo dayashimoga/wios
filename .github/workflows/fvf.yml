@@ -24,7 +24,7 @@ jobs:
         run: cargo fmt --all -- --check
         working-directory: crates
       - name: Clippy lint
-        run: cargo clippy --workspace -- -D warnings
+        run: cargo clippy --workspace --all-targets -- -D warnings
         working-directory: crates
 
   # ── Stage 2: Security & Dependency Scans ──────────────────────

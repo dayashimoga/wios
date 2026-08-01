@@ -1,6 +1,7 @@
 //! Performance benchmarks for critical WIOS operations.
 
 #[cfg(test)]
+#[allow(clippy::module_inception)]
 mod benchmarks {
     use std::time::Instant;
 

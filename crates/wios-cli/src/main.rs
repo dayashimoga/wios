@@ -1,7 +1,6 @@
 //! WIOS CLI — Command-line interface for WIOS operations.
 
 use clap::{Parser, Subcommand};
-use std::process;
 
 #[derive(Parser)]
 #[command(name = "wios", version, about = "WIOS Command Line Interface")]
