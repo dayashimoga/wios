@@ -168,14 +168,18 @@ impl WiosError {
             | Self::MessageDelivery(_)
             | Self::RoutingFailed { .. } => "NETWORK_ERROR",
             Self::Inference(_) | Self::ModelNotFound { .. } | Self::ModelLoad(_) => "AI_ERROR",
-            Self::Compute(_) | Self::TaskScheduling(_) | Self::ResourceUnavailable { .. } | Self::TaskNotFound(_) => {
-                "COMPUTE_ERROR"
-            }
+            Self::Compute(_)
+            | Self::TaskScheduling(_)
+            | Self::ResourceUnavailable { .. }
+            | Self::TaskNotFound(_) => "COMPUTE_ERROR",
             Self::AuthFailed(_)
             | Self::AccessDenied(_)
             | Self::TokenExpired
             | Self::InvalidPermissions(_) => "AUTH_ERROR",
-            Self::Plugin(_) | Self::PluginError(_) | Self::PluginNotFound { .. } | Self::Api { .. } => "PLUGIN_ERROR",
+            Self::Plugin(_)
+            | Self::PluginError(_)
+            | Self::PluginNotFound { .. }
+            | Self::Api { .. } => "PLUGIN_ERROR",
             Self::CapabilityUnavailable { .. } | Self::Sensor(_) | Self::Positioning(_) => {
                 "DEVICE_ERROR"
             }

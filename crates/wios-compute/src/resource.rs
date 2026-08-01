@@ -21,7 +21,10 @@ impl ResourceManager {
 
     /// Register a node's capabilities.
     pub async fn register(&self, node_id: &NodeId, capabilities: DeviceCapabilities) {
-        self.resources.write().await.insert(node_id.as_str().to_string(), capabilities);
+        self.resources
+            .write()
+            .await
+            .insert(node_id.as_str().to_string(), capabilities);
     }
 
     /// Unregister a node.
@@ -36,11 +39,11 @@ impl ResourceManager {
 
     /// Find nodes with specific capabilities.
     pub async fn find_capable(&self, requires_gpu: bool, min_ram_mb: u64) -> Vec<String> {
-        self.resources.read().await
+        self.resources
+            .read()
+            .await
             .iter()
-            .filter(|(_, cap)| {
-                (!requires_gpu || cap.has_gpu) && cap.ram_mb >= min_ram_mb
-            })
+            .filter(|(_, cap)| (!requires_gpu || cap.has_gpu) && cap.ram_mb >= min_ram_mb)
             .map(|(id, _)| id.clone())
             .collect()
     }

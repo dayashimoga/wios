@@ -1,10 +1,10 @@
 //! Mesh-distributed task scheduler — distributes compute tasks across peers.
 
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use chrono::{DateTime, Utc};
 use wios_core::error::{WiosError, WiosResult};
 use wios_core::types::NodeId;
 
@@ -54,7 +54,10 @@ impl TaskDistributor {
 
     /// Register a node's capabilities.
     pub async fn register_node(&self, node_id: &NodeId, cpu: u32, ram_mb: u64, gpu: bool) {
-        self.capabilities.write().await.insert(node_id.as_str().to_string(), (cpu, ram_mb, gpu));
+        self.capabilities
+            .write()
+            .await
+            .insert(node_id.as_str().to_string(), (cpu, ram_mb, gpu));
     }
 
     /// Remove a node (e.g., when it goes offline).
@@ -75,14 +78,16 @@ impl TaskDistributor {
         let caps = self.capabilities.read().await;
 
         // Find first queued task
-        let task_id = tasks.iter()
+        let task_id = tasks
+            .iter()
             .find(|(_, t)| t.status == DistributedTaskStatus::Queued)
             .map(|(id, _)| id.clone())?;
 
         let task = tasks.get(&task_id)?;
 
         // Find best capable node (most resources)
-        let best_node = caps.iter()
+        let best_node = caps
+            .iter()
             .filter(|(_, (cpu, ram, gpu))| {
                 *cpu >= task.required_cpu
                     && *ram >= task.required_ram_mb
@@ -101,7 +106,8 @@ impl TaskDistributor {
     /// Mark a task as completed with result.
     pub async fn complete(&self, task_id: &str, result: Vec<u8>) -> WiosResult<()> {
         let mut tasks = self.tasks.write().await;
-        let task = tasks.get_mut(task_id)
+        let task = tasks
+            .get_mut(task_id)
             .ok_or(WiosError::TaskNotFound(task_id.into()))?;
         task.status = DistributedTaskStatus::Completed;
         task.completed_at = Some(Utc::now());
@@ -112,7 +118,8 @@ impl TaskDistributor {
     /// Mark a task as failed.
     pub async fn fail(&self, task_id: &str) -> WiosResult<()> {
         let mut tasks = self.tasks.write().await;
-        let task = tasks.get_mut(task_id)
+        let task = tasks
+            .get_mut(task_id)
             .ok_or(WiosError::TaskNotFound(task_id.into()))?;
         task.status = DistributedTaskStatus::Failed;
         task.assigned_to = None;
@@ -121,15 +128,31 @@ impl TaskDistributor {
 
     /// Get task status.
     pub async fn status(&self, task_id: &str) -> Option<DistributedTaskStatus> {
-        self.tasks.read().await.get(task_id).map(|t| t.status.clone())
+        self.tasks
+            .read()
+            .await
+            .get(task_id)
+            .map(|t| t.status.clone())
     }
 
     /// Get mesh stats.
     pub async fn stats(&self) -> (usize, usize, usize) {
         let tasks = self.tasks.read().await;
-        let queued = tasks.values().filter(|t| t.status == DistributedTaskStatus::Queued).count();
-        let running = tasks.values().filter(|t| t.status == DistributedTaskStatus::Running || t.status == DistributedTaskStatus::Assigned).count();
-        let completed = tasks.values().filter(|t| t.status == DistributedTaskStatus::Completed).count();
+        let queued = tasks
+            .values()
+            .filter(|t| t.status == DistributedTaskStatus::Queued)
+            .count();
+        let running = tasks
+            .values()
+            .filter(|t| {
+                t.status == DistributedTaskStatus::Running
+                    || t.status == DistributedTaskStatus::Assigned
+            })
+            .count();
+        let completed = tasks
+            .values()
+            .filter(|t| t.status == DistributedTaskStatus::Completed)
+            .count();
         (queued, running, completed)
     }
 }
@@ -206,16 +229,26 @@ mod tests {
         dist.register_node(&node, 8, 16384, false).await;
 
         let task = DistributedTask {
-            id: "t1".into(), name: "test".into(), payload: vec![],
-            required_cpu: 1, required_ram_mb: 1024, requires_gpu: false,
-            submitted_by: NodeId::new(), assigned_to: None,
+            id: "t1".into(),
+            name: "test".into(),
+            payload: vec![],
+            required_cpu: 1,
+            required_ram_mb: 1024,
+            requires_gpu: false,
+            submitted_by: NodeId::new(),
+            assigned_to: None,
             status: DistributedTaskStatus::Queued,
-            submitted_at: Utc::now(), completed_at: None, result: None,
+            submitted_at: Utc::now(),
+            completed_at: None,
+            result: None,
         };
         dist.submit(task).await.unwrap();
         dist.assign_next().await;
         dist.complete("t1", b"result".to_vec()).await.unwrap();
 
-        assert_eq!(dist.status("t1").await.unwrap(), DistributedTaskStatus::Completed);
+        assert_eq!(
+            dist.status("t1").await.unwrap(),
+            DistributedTaskStatus::Completed
+        );
     }
 }

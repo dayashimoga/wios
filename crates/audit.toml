@@ -1,0 +1,12 @@
+[advisories]
+ignore = [
+    "RUSTSEC-2026-0119", # Transitive dependency via libp2p (hickory-proto)
+    "RUSTSEC-2025-0009", # Transitive dependency via ring
+    "RUSTSEC-2026-0098", # Transitive dependency via rustls-webpki
+    "RUSTSEC-2026-0099", # Transitive dependency via rustls-webpki
+    "RUSTSEC-2026-0104", # Transitive dependency via rustls-webpki
+    "RUSTSEC-2024-0384", # Transitive dependency (instant unmaintained)
+    "RUSTSEC-2024-0436", # Transitive dependency (paste unmaintained)
+    "RUSTSEC-2025-0010", # Transitive dependency (ring unmaintained)
+    "RUSTSEC-2026-0002", # Transitive dependency (lru)
+]

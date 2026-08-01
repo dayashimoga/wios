@@ -75,7 +75,9 @@ impl AiBackend for OnnxBackend {
         })
     }
 
-    async fn unload_model(&self, _model_id: &str) -> WiosResult<()> { Ok(()) }
+    async fn unload_model(&self, _model_id: &str) -> WiosResult<()> {
+        Ok(())
+    }
 
     async fn infer(&self, model_id: &str, _inputs: Vec<Tensor>) -> WiosResult<InferenceOutput> {
         Ok(InferenceOutput {
@@ -86,8 +88,12 @@ impl AiBackend for OnnxBackend {
         })
     }
 
-    async fn loaded_models(&self) -> Vec<ModelInfo> { vec![] }
-    fn supported_format(&self) -> ModelFormat { ModelFormat::Onnx }
+    async fn loaded_models(&self) -> Vec<ModelInfo> {
+        vec![]
+    }
+    fn supported_format(&self) -> ModelFormat {
+        ModelFormat::Onnx
+    }
 }
 
 /// Stub TFLite backend.
@@ -105,12 +111,23 @@ impl AiBackend for TfLiteBackend {
             task: "classification".into(),
         })
     }
-    async fn unload_model(&self, _model_id: &str) -> WiosResult<()> { Ok(()) }
-    async fn infer(&self, model_id: &str, _inputs: Vec<Tensor>) -> WiosResult<InferenceOutput> {
-        Ok(InferenceOutput { model_id: model_id.into(), values: vec![0.0], shape: vec![1], duration_ms: 0 })
+    async fn unload_model(&self, _model_id: &str) -> WiosResult<()> {
+        Ok(())
     }
-    async fn loaded_models(&self) -> Vec<ModelInfo> { vec![] }
-    fn supported_format(&self) -> ModelFormat { ModelFormat::TfLite }
+    async fn infer(&self, model_id: &str, _inputs: Vec<Tensor>) -> WiosResult<InferenceOutput> {
+        Ok(InferenceOutput {
+            model_id: model_id.into(),
+            values: vec![0.0],
+            shape: vec![1],
+            duration_ms: 0,
+        })
+    }
+    async fn loaded_models(&self) -> Vec<ModelInfo> {
+        vec![]
+    }
+    fn supported_format(&self) -> ModelFormat {
+        ModelFormat::TfLite
+    }
 }
 
 /// Stub llama.cpp backend for LLM inference.
@@ -128,12 +145,23 @@ impl AiBackend for LlamaBackend {
             task: "text-generation".into(),
         })
     }
-    async fn unload_model(&self, _model_id: &str) -> WiosResult<()> { Ok(()) }
-    async fn infer(&self, model_id: &str, _inputs: Vec<Tensor>) -> WiosResult<InferenceOutput> {
-        Ok(InferenceOutput { model_id: model_id.into(), values: vec![], shape: vec![0], duration_ms: 0 })
+    async fn unload_model(&self, _model_id: &str) -> WiosResult<()> {
+        Ok(())
     }
-    async fn loaded_models(&self) -> Vec<ModelInfo> { vec![] }
-    fn supported_format(&self) -> ModelFormat { ModelFormat::Gguf }
+    async fn infer(&self, model_id: &str, _inputs: Vec<Tensor>) -> WiosResult<InferenceOutput> {
+        Ok(InferenceOutput {
+            model_id: model_id.into(),
+            values: vec![],
+            shape: vec![0],
+            duration_ms: 0,
+        })
+    }
+    async fn loaded_models(&self) -> Vec<ModelInfo> {
+        vec![]
+    }
+    fn supported_format(&self) -> ModelFormat {
+        ModelFormat::Gguf
+    }
 }
 
 #[cfg(test)]

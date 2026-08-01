@@ -8,16 +8,32 @@ use wios_core::error::{WiosError, WiosResult};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Condition {
     /// Sensor value exceeds threshold
-    ThresholdAbove { sensor_id: String, value: f64 },
-    ThresholdBelow { sensor_id: String, value: f64 },
+    ThresholdAbove {
+        sensor_id: String,
+        value: f64,
+    },
+    ThresholdBelow {
+        sensor_id: String,
+        value: f64,
+    },
     /// Asset enters/exits a zone
-    ZoneEnter { zone_id: String },
-    ZoneExit { zone_id: String },
+    ZoneEnter {
+        zone_id: String,
+    },
+    ZoneExit {
+        zone_id: String,
+    },
     /// Time-based
-    Schedule { cron: String },
+    Schedule {
+        cron: String,
+    },
     /// Peer connects/disconnects
-    PeerConnected { node_pattern: String },
-    PeerDisconnected { node_pattern: String },
+    PeerConnected {
+        node_pattern: String,
+    },
+    PeerDisconnected {
+        node_pattern: String,
+    },
     /// Compound
     And(Vec<Condition>),
     Or(Vec<Condition>),
@@ -62,7 +78,9 @@ pub struct RuleEngine {
 
 impl RuleEngine {
     pub fn new() -> Self {
-        Self { rules: HashMap::new() }
+        Self {
+            rules: HashMap::new(),
+        }
     }
 
     pub fn add_rule(&mut self, rule: Rule) {
@@ -74,15 +92,19 @@ impl RuleEngine {
     }
 
     pub fn enable_rule(&mut self, rule_id: &str) -> WiosResult<()> {
-        let rule = self.rules.get_mut(rule_id)
-            .ok_or(WiosError::NotFound { entity: "rule".into(), id: rule_id.into() })?;
+        let rule = self.rules.get_mut(rule_id).ok_or(WiosError::NotFound {
+            entity: "rule".into(),
+            id: rule_id.into(),
+        })?;
         rule.enabled = true;
         Ok(())
     }
 
     pub fn disable_rule(&mut self, rule_id: &str) -> WiosResult<()> {
-        let rule = self.rules.get_mut(rule_id)
-            .ok_or(WiosError::NotFound { entity: "rule".into(), id: rule_id.into() })?;
+        let rule = self.rules.get_mut(rule_id).ok_or(WiosError::NotFound {
+            entity: "rule".into(),
+            id: rule_id.into(),
+        })?;
         rule.enabled = false;
         Ok(())
     }
@@ -93,11 +115,15 @@ impl RuleEngine {
         let mut triggered = Vec::new();
 
         for rule in self.rules.values_mut() {
-            if !rule.enabled { continue; }
+            if !rule.enabled {
+                continue;
+            }
 
             // Check cooldown
             if let Some(last) = rule.last_triggered {
-                if now - last < rule.cooldown_secs { continue; }
+                if now - last < rule.cooldown_secs {
+                    continue;
+                }
             }
 
             if Self::check_condition(&rule.condition, event) {
@@ -117,13 +143,17 @@ impl RuleEngine {
             Condition::ThresholdBelow { sensor_id, value } => {
                 event.sensor_id == *sensor_id && event.value < *value
             }
-            Condition::And(conditions) => conditions.iter().all(|c| Self::check_condition(c, event)),
+            Condition::And(conditions) => {
+                conditions.iter().all(|c| Self::check_condition(c, event))
+            }
             Condition::Or(conditions) => conditions.iter().any(|c| Self::check_condition(c, event)),
             _ => false, // Zone/schedule/peer conditions need different event types
         }
     }
 
-    pub fn rule_count(&self) -> usize { self.rules.len() }
+    pub fn rule_count(&self) -> usize {
+        self.rules.len()
+    }
 
     pub fn active_rules(&self) -> Vec<&Rule> {
         self.rules.values().filter(|r| r.enabled).collect()
@@ -131,7 +161,9 @@ impl RuleEngine {
 }
 
 impl Default for RuleEngine {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 #[cfg(test)]
@@ -143,8 +175,13 @@ mod tests {
             id: id.into(),
             name: format!("Test rule {}", id),
             enabled: true,
-            condition: Condition::ThresholdAbove { sensor_id: sensor.into(), value: threshold },
-            actions: vec![Action::Log { message: "triggered".into() }],
+            condition: Condition::ThresholdAbove {
+                sensor_id: sensor.into(),
+                value: threshold,
+            },
+            actions: vec![Action::Log {
+                message: "triggered".into(),
+            }],
             cooldown_secs: 0,
             last_triggered: None,
             trigger_count: 0,
@@ -156,7 +193,11 @@ mod tests {
         let mut engine = RuleEngine::new();
         engine.add_rule(make_rule("r1", "temp", 30.0));
 
-        let event = SensorEvent { sensor_id: "temp".into(), value: 35.0, timestamp: 100 };
+        let event = SensorEvent {
+            sensor_id: "temp".into(),
+            value: 35.0,
+            timestamp: 100,
+        };
         let triggered = engine.evaluate(&event);
         assert_eq!(triggered.len(), 1);
         assert_eq!(triggered[0].0, "r1");
@@ -169,13 +210,25 @@ mod tests {
         rule.cooldown_secs = 60;
         engine.add_rule(rule);
 
-        let event1 = SensorEvent { sensor_id: "temp".into(), value: 35.0, timestamp: 100 };
+        let event1 = SensorEvent {
+            sensor_id: "temp".into(),
+            value: 35.0,
+            timestamp: 100,
+        };
         assert_eq!(engine.evaluate(&event1).len(), 1);
 
-        let event2 = SensorEvent { sensor_id: "temp".into(), value: 35.0, timestamp: 110 };
+        let event2 = SensorEvent {
+            sensor_id: "temp".into(),
+            value: 35.0,
+            timestamp: 110,
+        };
         assert_eq!(engine.evaluate(&event2).len(), 0); // Still in cooldown
 
-        let event3 = SensorEvent { sensor_id: "temp".into(), value: 35.0, timestamp: 200 };
+        let event3 = SensorEvent {
+            sensor_id: "temp".into(),
+            value: 35.0,
+            timestamp: 200,
+        };
         assert_eq!(engine.evaluate(&event3).len(), 1); // Cooldown expired
     }
 
@@ -185,7 +238,11 @@ mod tests {
         engine.add_rule(make_rule("r1", "temp", 30.0));
         engine.disable_rule("r1").unwrap();
 
-        let event = SensorEvent { sensor_id: "temp".into(), value: 35.0, timestamp: 100 };
+        let event = SensorEvent {
+            sensor_id: "temp".into(),
+            value: 35.0,
+            timestamp: 100,
+        };
         assert_eq!(engine.evaluate(&event).len(), 0);
     }
 }

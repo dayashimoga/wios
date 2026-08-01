@@ -15,9 +15,9 @@
 pub mod config;
 pub mod error;
 pub mod event;
-pub mod types;
 pub mod traits;
+pub mod types;
 
 pub use config::WiosConfig;
 pub use error::{WiosError, WiosResult};
-pub use types::{DeviceId, PeerId, NodeId, NodeInfo, DeviceCapabilities, Timestamp};
+pub use types::{DeviceCapabilities, DeviceId, NodeId, NodeInfo, PeerId, Timestamp};

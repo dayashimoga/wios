@@ -17,9 +17,17 @@ mod benchmarks {
             let _ = wios_crypto::encryption::EncryptionService::encrypt(&key, &data).unwrap();
         }
         let elapsed = start.elapsed();
-        let throughput_mbps = (iterations as f64 * data.len() as f64) / elapsed.as_secs_f64() / 1_000_000.0;
-        println!("Encryption throughput: {:.1} MB/s ({} iterations)", throughput_mbps, iterations);
-        assert!(throughput_mbps > 10.0, "Encryption too slow: {:.1} MB/s", throughput_mbps);
+        let throughput_mbps =
+            (iterations as f64 * data.len() as f64) / elapsed.as_secs_f64() / 1_000_000.0;
+        println!(
+            "Encryption throughput: {:.1} MB/s ({} iterations)",
+            throughput_mbps, iterations
+        );
+        assert!(
+            throughput_mbps > 10.0,
+            "Encryption too slow: {:.1} MB/s",
+            throughput_mbps
+        );
     }
 
     /// Benchmark: Ed25519 signing throughput.
@@ -35,8 +43,15 @@ mod benchmarks {
         }
         let elapsed = start.elapsed();
         let ops_per_sec = iterations as f64 / elapsed.as_secs_f64();
-        println!("Signing throughput: {:.0} ops/s ({} iterations)", ops_per_sec, iterations);
-        assert!(ops_per_sec > 1000.0, "Signing too slow: {:.0} ops/s", ops_per_sec);
+        println!(
+            "Signing throughput: {:.0} ops/s ({} iterations)",
+            ops_per_sec, iterations
+        );
+        assert!(
+            ops_per_sec > 1000.0,
+            "Signing too slow: {:.0} ops/s",
+            ops_per_sec
+        );
     }
 
     /// Benchmark: Chunking throughput.
@@ -52,14 +67,25 @@ mod benchmarks {
             let file_hash = {
                 use ring::digest;
                 let d = digest::digest(&digest::SHA256, &data);
-                d.as_ref().iter().map(|b| format!("{:02x}", b)).collect::<String>()
+                d.as_ref()
+                    .iter()
+                    .map(|b| format!("{:02x}", b))
+                    .collect::<String>()
             };
             let _ = engine.reassemble(&chunks, &file_hash).unwrap();
         }
         let elapsed = start.elapsed();
-        let throughput_mbps = (iterations as f64 * data.len() as f64 * 2.0) / elapsed.as_secs_f64() / 1_000_000.0;
-        println!("Chunking roundtrip: {:.1} MB/s ({} iterations)", throughput_mbps, iterations);
-        assert!(throughput_mbps > 50.0, "Chunking too slow: {:.1} MB/s", throughput_mbps);
+        let throughput_mbps =
+            (iterations as f64 * data.len() as f64 * 2.0) / elapsed.as_secs_f64() / 1_000_000.0;
+        println!(
+            "Chunking roundtrip: {:.1} MB/s ({} iterations)",
+            throughput_mbps, iterations
+        );
+        assert!(
+            throughput_mbps > 50.0,
+            "Chunking too slow: {:.1} MB/s",
+            throughput_mbps
+        );
     }
 
     /// Benchmark: SQLite operations throughput.
@@ -71,7 +97,14 @@ mod benchmarks {
         // Write benchmark
         let start = Instant::now();
         for i in 0..iterations {
-            store.put("bench", &format!("key_{}", i), format!("value_{}", i).as_bytes()).await.unwrap();
+            store
+                .put(
+                    "bench",
+                    &format!("key_{}", i),
+                    format!("value_{}", i).as_bytes(),
+                )
+                .await
+                .unwrap();
         }
         let write_elapsed = start.elapsed();
         let writes_per_sec = iterations as f64 / write_elapsed.as_secs_f64();
@@ -84,7 +117,10 @@ mod benchmarks {
         let read_elapsed = start.elapsed();
         let reads_per_sec = iterations as f64 / read_elapsed.as_secs_f64();
 
-        println!("SQLite writes: {:.0} ops/s, reads: {:.0} ops/s", writes_per_sec, reads_per_sec);
+        println!(
+            "SQLite writes: {:.0} ops/s, reads: {:.0} ops/s",
+            writes_per_sec, reads_per_sec
+        );
         assert!(writes_per_sec > 100.0, "SQLite writes too slow");
         assert!(reads_per_sec > 1000.0, "SQLite reads too slow");
     }
@@ -119,11 +155,20 @@ mod benchmarks {
 
         let start = Instant::now();
         for _ in 0..iterations {
-            let compressed = wios_network::compression::compress(&data, wios_network::compression::CompressionAlgo::Zstd).unwrap();
-            let _ = wios_network::compression::decompress(&compressed, wios_network::compression::CompressionAlgo::Zstd).unwrap();
+            let compressed = wios_network::compression::compress(
+                &data,
+                wios_network::compression::CompressionAlgo::Zstd,
+            )
+            .unwrap();
+            let _ = wios_network::compression::decompress(
+                &compressed,
+                wios_network::compression::CompressionAlgo::Zstd,
+            )
+            .unwrap();
         }
         let elapsed = start.elapsed();
-        let throughput_mbps = (iterations as f64 * data.len() as f64 * 2.0) / elapsed.as_secs_f64() / 1_000_000.0;
+        let throughput_mbps =
+            (iterations as f64 * data.len() as f64 * 2.0) / elapsed.as_secs_f64() / 1_000_000.0;
         println!("Compression roundtrip: {:.1} MB/s", throughput_mbps);
         assert!(throughput_mbps > 50.0, "Compression too slow");
     }

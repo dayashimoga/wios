@@ -1,10 +1,10 @@
 //! mDNS + Kademlia discovery wiring.
 
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use chrono::{DateTime, Utc};
 use wios_core::types::NodeId;
 
 /// A discovered peer on the network.
@@ -64,14 +64,17 @@ impl DiscoveryService {
                 }
             }
         } else {
-            peers.insert(key, DiscoveredPeer {
-                node_id: node_id.clone(),
-                addresses,
-                discovery_method: method,
-                first_seen: now,
-                last_seen: now,
-                metadata,
-            });
+            peers.insert(
+                key,
+                DiscoveredPeer {
+                    node_id: node_id.clone(),
+                    addresses,
+                    discovery_method: method,
+                    first_seen: now,
+                    last_seen: now,
+                    metadata,
+                },
+            );
         }
     }
 
@@ -92,7 +95,10 @@ impl DiscoveryService {
 
     /// Get peers discovered via a specific method.
     pub async fn peers_by_method(&self, method: DiscoveryMethod) -> Vec<DiscoveredPeer> {
-        self.peers.read().await.values()
+        self.peers
+            .read()
+            .await
+            .values()
             .filter(|p| p.discovery_method == method)
             .cloned()
             .collect()
@@ -102,7 +108,8 @@ impl DiscoveryService {
     pub async fn purge_stale(&self, timeout_secs: i64) -> usize {
         let mut peers = self.peers.write().await;
         let now = Utc::now();
-        let stale: Vec<String> = peers.iter()
+        let stale: Vec<String> = peers
+            .iter()
             .filter(|(_, p)| (now - p.last_seen).num_seconds() > timeout_secs)
             .map(|(k, _)| k.clone())
             .collect();
@@ -113,8 +120,12 @@ impl DiscoveryService {
         count
     }
 
-    pub fn mdns_enabled(&self) -> bool { self.mdns_enabled }
-    pub fn kademlia_enabled(&self) -> bool { self.kademlia_enabled }
+    pub fn mdns_enabled(&self) -> bool {
+        self.mdns_enabled
+    }
+    pub fn kademlia_enabled(&self) -> bool {
+        self.kademlia_enabled
+    }
 
     pub async fn peer_count(&self) -> usize {
         self.peers.read().await.len()
@@ -135,7 +146,8 @@ mod tests {
             vec!["192.168.1.10:9090".into()],
             DiscoveryMethod::Mdns,
             HashMap::new(),
-        ).await;
+        )
+        .await;
 
         assert_eq!(svc.peer_count().await, 1);
         assert!(svc.find_peer(&node).await.is_some());
@@ -149,8 +161,20 @@ mod tests {
         let svc = DiscoveryService::new(true, false);
         let node = NodeId::new();
 
-        svc.on_peer_discovered(&node, vec!["addr1".into()], DiscoveryMethod::Mdns, HashMap::new()).await;
-        svc.on_peer_discovered(&node, vec!["addr2".into()], DiscoveryMethod::Mdns, HashMap::new()).await;
+        svc.on_peer_discovered(
+            &node,
+            vec!["addr1".into()],
+            DiscoveryMethod::Mdns,
+            HashMap::new(),
+        )
+        .await;
+        svc.on_peer_discovered(
+            &node,
+            vec!["addr2".into()],
+            DiscoveryMethod::Mdns,
+            HashMap::new(),
+        )
+        .await;
 
         let peer = svc.find_peer(&node).await.unwrap();
         assert_eq!(peer.addresses.len(), 2);
@@ -162,10 +186,15 @@ mod tests {
         let n1 = NodeId::new();
         let n2 = NodeId::new();
 
-        svc.on_peer_discovered(&n1, vec![], DiscoveryMethod::Mdns, HashMap::new()).await;
-        svc.on_peer_discovered(&n2, vec![], DiscoveryMethod::Kademlia, HashMap::new()).await;
+        svc.on_peer_discovered(&n1, vec![], DiscoveryMethod::Mdns, HashMap::new())
+            .await;
+        svc.on_peer_discovered(&n2, vec![], DiscoveryMethod::Kademlia, HashMap::new())
+            .await;
 
         assert_eq!(svc.peers_by_method(DiscoveryMethod::Mdns).await.len(), 1);
-        assert_eq!(svc.peers_by_method(DiscoveryMethod::Kademlia).await.len(), 1);
+        assert_eq!(
+            svc.peers_by_method(DiscoveryMethod::Kademlia).await.len(),
+            1
+        );
     }
 }

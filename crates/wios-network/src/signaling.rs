@@ -10,9 +10,17 @@ use wios_core::types::NodeId;
 /// Signaling message types.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum SignalMessage {
-    Offer { sdp: String },
-    Answer { sdp: String },
-    IceCandidate { candidate: String, sdp_mid: String, sdp_mline_index: u32 },
+    Offer {
+        sdp: String,
+    },
+    Answer {
+        sdp: String,
+    },
+    IceCandidate {
+        candidate: String,
+        sdp_mid: String,
+        sdp_mline_index: u32,
+    },
     Hangup,
 }
 
@@ -52,7 +60,9 @@ pub struct SignalingServer {
 
 impl SignalingServer {
     pub fn new() -> Self {
-        Self { sessions: Arc::new(RwLock::new(HashMap::new())) }
+        Self {
+            sessions: Arc::new(RwLock::new(HashMap::new())),
+        }
     }
 
     /// Initiate a call.
@@ -71,7 +81,10 @@ impl SignalingServer {
             media_type,
             signals: Vec::new(),
         };
-        self.sessions.write().await.insert(session_id.clone(), session);
+        self.sessions
+            .write()
+            .await
+            .insert(session_id.clone(), session);
         Ok(session_id)
     }
 
@@ -83,8 +96,10 @@ impl SignalingServer {
         message: SignalMessage,
     ) -> WiosResult<()> {
         let mut sessions = self.sessions.write().await;
-        let session = sessions.get_mut(session_id)
-            .ok_or(WiosError::NotFound { entity: "session".into(), id: session_id.into() })?;
+        let session = sessions.get_mut(session_id).ok_or(WiosError::NotFound {
+            entity: "session".into(),
+            id: session_id.into(),
+        })?;
 
         match &message {
             SignalMessage::Offer { .. } => session.state = CallState::Connecting,
@@ -100,8 +115,10 @@ impl SignalingServer {
     /// Get pending signals for a peer.
     pub async fn get_signals(&self, session_id: &str) -> WiosResult<Vec<(String, SignalMessage)>> {
         let sessions = self.sessions.read().await;
-        let session = sessions.get(session_id)
-            .ok_or(WiosError::NotFound { entity: "session".into(), id: session_id.into() })?;
+        let session = sessions.get(session_id).ok_or(WiosError::NotFound {
+            entity: "session".into(),
+            id: session_id.into(),
+        })?;
         Ok(session.signals.clone())
     }
 
@@ -116,14 +133,24 @@ impl SignalingServer {
 
     /// Get active call count.
     pub async fn active_calls(&self) -> usize {
-        self.sessions.read().await.values()
-            .filter(|s| matches!(s.state, CallState::Ringing | CallState::Connecting | CallState::Connected))
+        self.sessions
+            .read()
+            .await
+            .values()
+            .filter(|s| {
+                matches!(
+                    s.state,
+                    CallState::Ringing | CallState::Connecting | CallState::Connected
+                )
+            })
             .count()
     }
 }
 
 impl Default for SignalingServer {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 #[cfg(test)]
@@ -136,11 +163,32 @@ mod tests {
         let caller = NodeId::new();
         let callee = NodeId::new();
 
-        let sid = server.initiate_call(caller.clone(), callee, MediaType::Audio).await.unwrap();
+        let sid = server
+            .initiate_call(caller.clone(), callee, MediaType::Audio)
+            .await
+            .unwrap();
         assert_eq!(server.active_calls().await, 1);
 
-        server.send_signal(&sid, caller.as_str(), SignalMessage::Offer { sdp: "v=0...".into() }).await.unwrap();
-        server.send_signal(&sid, "callee", SignalMessage::Answer { sdp: "v=0...".into() }).await.unwrap();
+        server
+            .send_signal(
+                &sid,
+                caller.as_str(),
+                SignalMessage::Offer {
+                    sdp: "v=0...".into(),
+                },
+            )
+            .await
+            .unwrap();
+        server
+            .send_signal(
+                &sid,
+                "callee",
+                SignalMessage::Answer {
+                    sdp: "v=0...".into(),
+                },
+            )
+            .await
+            .unwrap();
 
         let signals = server.get_signals(&sid).await.unwrap();
         assert_eq!(signals.len(), 2);

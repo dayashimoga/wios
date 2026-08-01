@@ -15,8 +15,8 @@ impl EncryptionService {
     ///
     /// Returns nonce (12 bytes) prepended to ciphertext.
     pub fn encrypt(key: &[u8; 32], plaintext: &[u8]) -> WiosResult<Vec<u8>> {
-        let cipher = Aes256Gcm::new_from_slice(key)
-            .map_err(|e| WiosError::Encryption(e.to_string()))?;
+        let cipher =
+            Aes256Gcm::new_from_slice(key).map_err(|e| WiosError::Encryption(e.to_string()))?;
 
         let mut nonce_bytes = [0u8; 12];
         rand::thread_rng().fill_bytes(&mut nonce_bytes);
@@ -42,8 +42,8 @@ impl EncryptionService {
         }
 
         let (nonce_bytes, ciphertext) = data.split_at(12);
-        let cipher = Aes256Gcm::new_from_slice(key)
-            .map_err(|e| WiosError::Decryption(e.to_string()))?;
+        let cipher =
+            Aes256Gcm::new_from_slice(key).map_err(|e| WiosError::Decryption(e.to_string()))?;
         let nonce = Nonce::from_slice(nonce_bytes);
 
         cipher

@@ -1,15 +1,13 @@
 //! Core mesh node implementation.
 
-use libp2p::{
-    gossipsub, identify, kad, mdns, ping, swarm::NetworkBehaviour, PeerId,
-};
+use libp2p::{gossipsub, identify, kad, mdns, ping, swarm::NetworkBehaviour, PeerId};
 use std::collections::HashMap;
 use std::sync::Arc;
 
 use tokio::sync::RwLock;
 use tracing::info;
-use wios_core::error::WiosResult;
 use wios_core::config::NetworkConfig;
+use wios_core::error::WiosResult;
 
 /// Combined network behaviour for the mesh node.
 #[derive(NetworkBehaviour)]
@@ -115,7 +113,11 @@ impl MeshNode {
         } else {
             let sum: u64 = peers.values().filter_map(|p| p.latency_ms).sum();
             let count = peers.values().filter(|p| p.latency_ms.is_some()).count();
-            if count > 0 { sum as f64 / count as f64 } else { 0.0 }
+            if count > 0 {
+                sum as f64 / count as f64
+            } else {
+                0.0
+            }
         };
 
         NetworkStats {

@@ -1,11 +1,6 @@
 //! REST API routes using Axum.
 
-use axum::{
-    extract::State,
-    response::Json,
-    routing::get,
-    Router,
-};
+use axum::{extract::State, response::Json, routing::get, Router};
 use serde_json::{json, Value};
 use std::sync::Arc;
 use tower_http::cors::CorsLayer;
@@ -102,7 +97,12 @@ mod tests {
     async fn test_health_check() {
         let app = create_router();
         let response = app
-            .oneshot(Request::builder().uri("/api/v1/health").body(Body::empty()).unwrap())
+            .oneshot(
+                Request::builder()
+                    .uri("/api/v1/health")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
             .await
             .unwrap();
         assert_eq!(response.status(), StatusCode::OK);
@@ -112,7 +112,12 @@ mod tests {
     async fn test_system_info() {
         let app = create_router();
         let response = app
-            .oneshot(Request::builder().uri("/api/v1/info").body(Body::empty()).unwrap())
+            .oneshot(
+                Request::builder()
+                    .uri("/api/v1/info")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
             .await
             .unwrap();
         assert_eq!(response.status(), StatusCode::OK);

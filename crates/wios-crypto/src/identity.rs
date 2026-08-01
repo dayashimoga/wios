@@ -91,7 +91,10 @@ impl CertificateManager {
             expires.to_rfc3339()
         );
         let sig_bytes = sign_fn(cert_data.as_bytes())?;
-        let signature = sig_bytes.iter().map(|b| format!("{:02x}", b)).collect::<String>();
+        let signature = sig_bytes
+            .iter()
+            .map(|b| format!("{:02x}", b))
+            .collect::<String>();
 
         let cert = NodeCertificate {
             serial: serial.clone(),
@@ -119,13 +122,18 @@ impl CertificateManager {
         }
         drop(revoked);
 
-        self.certificates.write().await.insert(cert.serial.clone(), cert);
+        self.certificates
+            .write()
+            .await
+            .insert(cert.serial.clone(), cert);
         Ok(())
     }
 
     /// Get a certificate by serial.
     pub async fn get(&self, serial: &str) -> WiosResult<NodeCertificate> {
-        self.certificates.read().await
+        self.certificates
+            .read()
+            .await
             .get(serial)
             .cloned()
             .ok_or_else(|| WiosError::Crypto(format!("Certificate not found: {}", serial)))
@@ -133,7 +141,9 @@ impl CertificateManager {
 
     /// Get a valid certificate for a node.
     pub async fn get_for_node(&self, node_id: &NodeId) -> Option<NodeCertificate> {
-        self.certificates.read().await
+        self.certificates
+            .read()
+            .await
             .values()
             .find(|c| c.node_id == *node_id && c.is_valid())
             .cloned()
@@ -148,13 +158,18 @@ impl CertificateManager {
             self.revocation_list.write().await.push(serial.to_string());
             Ok(())
         } else {
-            Err(WiosError::Crypto(format!("Certificate not found: {}", serial)))
+            Err(WiosError::Crypto(format!(
+                "Certificate not found: {}",
+                serial
+            )))
         }
     }
 
     /// List all valid certificates.
     pub async fn list_valid(&self) -> Vec<NodeCertificate> {
-        self.certificates.read().await
+        self.certificates
+            .read()
+            .await
             .values()
             .filter(|c| c.is_valid())
             .cloned()
@@ -192,14 +207,12 @@ mod tests {
         let mgr = CertificateManager::new();
         let node = NodeId::new();
 
-        let cert = mgr.issue_self_signed(
-            &node,
-            "test-node",
-            "aabbccdd",
-            "eeff0011",
-            365,
-            |data| Ok(data[..64.min(data.len())].to_vec()),
-        ).await.unwrap();
+        let cert = mgr
+            .issue_self_signed(&node, "test-node", "aabbccdd", "eeff0011", 365, |data| {
+                Ok(data[..64.min(data.len())].to_vec())
+            })
+            .await
+            .unwrap();
 
         assert!(cert.is_valid());
         assert!(cert.is_self_signed());
@@ -211,10 +224,12 @@ mod tests {
         let mgr = CertificateManager::new();
         let node = NodeId::new();
 
-        let cert = mgr.issue_self_signed(
-            &node, "test", "aa", "bb", 365,
-            |data| Ok(data[..32.min(data.len())].to_vec()),
-        ).await.unwrap();
+        let cert = mgr
+            .issue_self_signed(&node, "test", "aa", "bb", 365, |data| {
+                Ok(data[..32.min(data.len())].to_vec())
+            })
+            .await
+            .unwrap();
 
         mgr.revoke(&cert.serial).await.unwrap();
         let retrieved = mgr.get(&cert.serial).await.unwrap();
@@ -226,10 +241,11 @@ mod tests {
         let mgr = CertificateManager::new();
         let node = NodeId::new();
 
-        mgr.issue_self_signed(
-            &node, "test", "aa", "bb", 365,
-            |data| Ok(data[..32.min(data.len())].to_vec()),
-        ).await.unwrap();
+        mgr.issue_self_signed(&node, "test", "aa", "bb", 365, |data| {
+            Ok(data[..32.min(data.len())].to_vec())
+        })
+        .await
+        .unwrap();
 
         assert!(mgr.get_for_node(&node).await.is_some());
         assert!(mgr.get_for_node(&NodeId::new()).await.is_none());

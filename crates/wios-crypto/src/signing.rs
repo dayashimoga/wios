@@ -14,7 +14,10 @@ impl SigningService {
     pub fn generate_keypair() -> (Vec<u8>, Vec<u8>) {
         let signing_key = SigningKey::generate(&mut OsRng);
         let verifying_key = signing_key.verifying_key();
-        (signing_key.to_bytes().to_vec(), verifying_key.to_bytes().to_vec())
+        (
+            signing_key.to_bytes().to_vec(),
+            verifying_key.to_bytes().to_vec(),
+        )
     }
 
     /// Sign data with an Ed25519 private key.
@@ -32,8 +35,8 @@ impl SigningService {
         let key_bytes: [u8; 32] = public_key
             .try_into()
             .map_err(|_| WiosError::Crypto("Invalid public key length".into()))?;
-        let verifying_key = VerifyingKey::from_bytes(&key_bytes)
-            .map_err(|e| WiosError::Crypto(e.to_string()))?;
+        let verifying_key =
+            VerifyingKey::from_bytes(&key_bytes).map_err(|e| WiosError::Crypto(e.to_string()))?;
 
         let sig_bytes: [u8; 64] = signature
             .try_into()

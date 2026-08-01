@@ -225,14 +225,14 @@ impl WiosConfig {
 
     /// Load configuration from a specific TOML file.
     pub fn load_from_file(path: &Path) -> WiosResult<Self> {
-        let content = std::fs::read_to_string(path).map_err(|e| WiosError::Config(e.to_string()))?;
+        let content =
+            std::fs::read_to_string(path).map_err(|e| WiosError::Config(e.to_string()))?;
         toml::from_str(&content).map_err(|e| WiosError::Config(e.to_string()))
     }
 
     /// Save configuration to a TOML file.
     pub fn save(&self, path: &Path) -> WiosResult<()> {
-        let content =
-            toml::to_string_pretty(self).map_err(|e| WiosError::Config(e.to_string()))?;
+        let content = toml::to_string_pretty(self).map_err(|e| WiosError::Config(e.to_string()))?;
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)?;
         }

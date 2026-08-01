@@ -149,8 +149,8 @@ impl KeyStore {
 
     /// Persist keys to disk.
     fn persist(&self, keys: &HashMap<String, KeyEntry>) -> WiosResult<()> {
-        let data = serde_json::to_string_pretty(keys)
-            .map_err(|e| WiosError::Crypto(e.to_string()))?;
+        let data =
+            serde_json::to_string_pretty(keys).map_err(|e| WiosError::Crypto(e.to_string()))?;
         std::fs::write(&self.storage_path, data)?;
         Ok(())
     }

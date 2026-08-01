@@ -89,7 +89,10 @@ impl PluginRegistry {
             info.state = PluginState::Active;
             info.load_time_ms = start.elapsed().as_millis() as u64;
         } else {
-            return Err(WiosError::PluginError(format!("Plugin {} not registered", id)));
+            return Err(WiosError::PluginError(format!(
+                "Plugin {} not registered",
+                id
+            )));
         }
 
         self.handlers.write().await.insert(id.to_string(), handler);
@@ -108,10 +111,19 @@ impl PluginRegistry {
     }
 
     /// Send a command to a plugin.
-    pub async fn send_command(&self, plugin_id: &str, command: &str, args: &[u8]) -> WiosResult<Vec<u8>> {
+    pub async fn send_command(
+        &self,
+        plugin_id: &str,
+        command: &str,
+        args: &[u8],
+    ) -> WiosResult<Vec<u8>> {
         let handlers = self.handlers.read().await;
-        let handler = handlers.get(plugin_id)
-            .ok_or(WiosError::PluginError(format!("Plugin {} not loaded", plugin_id)))?;
+        let handler = handlers
+            .get(plugin_id)
+            .ok_or(WiosError::PluginError(format!(
+                "Plugin {} not loaded",
+                plugin_id
+            )))?;
         handler.handle_command(command, args).await
     }
 
@@ -122,7 +134,12 @@ impl PluginRegistry {
 
     /// Get active plugin count.
     pub async fn active_count(&self) -> usize {
-        self.plugins.read().await.values().filter(|p| p.state == PluginState::Active).count()
+        self.plugins
+            .read()
+            .await
+            .values()
+            .filter(|p| p.state == PluginState::Active)
+            .count()
     }
 }
 
@@ -140,9 +157,15 @@ mod tests {
 
     #[async_trait]
     impl Plugin for TestPlugin {
-        fn id(&self) -> &str { "test-plugin" }
-        async fn on_load(&self) -> WiosResult<()> { Ok(()) }
-        async fn on_unload(&self) -> WiosResult<()> { Ok(()) }
+        fn id(&self) -> &str {
+            "test-plugin"
+        }
+        async fn on_load(&self) -> WiosResult<()> {
+            Ok(())
+        }
+        async fn on_unload(&self) -> WiosResult<()> {
+            Ok(())
+        }
         async fn handle_command(&self, cmd: &str, _args: &[u8]) -> WiosResult<Vec<u8>> {
             Ok(format!("handled: {}", cmd).into_bytes())
         }
@@ -162,10 +185,16 @@ mod tests {
         };
 
         registry.register(manifest).await.unwrap();
-        registry.load("test-plugin", Arc::new(TestPlugin)).await.unwrap();
+        registry
+            .load("test-plugin", Arc::new(TestPlugin))
+            .await
+            .unwrap();
         assert_eq!(registry.active_count().await, 1);
 
-        let result = registry.send_command("test-plugin", "ping", b"").await.unwrap();
+        let result = registry
+            .send_command("test-plugin", "ping", b"")
+            .await
+            .unwrap();
         assert_eq!(String::from_utf8(result).unwrap(), "handled: ping");
 
         registry.unload("test-plugin").await.unwrap();

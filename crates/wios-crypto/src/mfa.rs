@@ -49,7 +49,11 @@ impl Totp {
             | (hash[offset + 3] as u32);
 
         let modulus = 10u32.pow(digits);
-        Ok(format!("{:0>width$}", binary % modulus, width = digits as usize))
+        Ok(format!(
+            "{:0>width$}",
+            binary % modulus,
+            width = digits as usize
+        ))
     }
 
     /// Encode secret as Base32 for QR code / authenticator app.
@@ -114,7 +118,10 @@ fn constant_time_eq(a: &[u8], b: &[u8]) -> bool {
     if a.len() != b.len() {
         return false;
     }
-    a.iter().zip(b.iter()).fold(0u8, |acc, (&x, &y)| acc | (x ^ y)) == 0
+    a.iter()
+        .zip(b.iter())
+        .fold(0u8, |acc, (&x, &y)| acc | (x ^ y))
+        == 0
 }
 
 #[cfg(test)]
@@ -139,7 +146,9 @@ mod tests {
     fn test_base32_encoding() {
         let encoded = Totp::secret_to_base32(b"Hello!");
         assert!(!encoded.is_empty());
-        assert!(encoded.chars().all(|c| "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567".contains(c)));
+        assert!(encoded
+            .chars()
+            .all(|c| "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567".contains(c)));
     }
 
     #[test]

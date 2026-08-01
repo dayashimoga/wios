@@ -41,7 +41,12 @@ impl InferencePipeline {
     }
 
     /// Submit a task to the pipeline.
-    pub async fn submit(&self, model_id: &str, input: Vec<u8>, priority: u32) -> WiosResult<String> {
+    pub async fn submit(
+        &self,
+        model_id: &str,
+        input: Vec<u8>,
+        priority: u32,
+    ) -> WiosResult<String> {
         let task = InferenceTask {
             id: Uuid::new_v4().to_string(),
             model_id: model_id.into(),
@@ -71,7 +76,10 @@ mod tests {
     #[tokio::test]
     async fn test_pipeline_submit() {
         let pipeline = InferencePipeline::new(100);
-        let id = pipeline.submit("model1", b"input".to_vec(), 1).await.unwrap();
+        let id = pipeline
+            .submit("model1", b"input".to_vec(), 1)
+            .await
+            .unwrap();
         assert!(!id.is_empty());
         assert_eq!(pipeline.queue_depth().await, 1);
     }

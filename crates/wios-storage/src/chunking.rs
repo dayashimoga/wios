@@ -48,7 +48,11 @@ pub struct ChunkEngine {
 impl ChunkEngine {
     pub fn new(chunk_size: usize) -> Self {
         Self {
-            chunk_size: if chunk_size == 0 { DEFAULT_CHUNK_SIZE } else { chunk_size },
+            chunk_size: if chunk_size == 0 {
+                DEFAULT_CHUNK_SIZE
+            } else {
+                chunk_size
+            },
             chunk_refs: HashMap::new(),
         }
     }
@@ -124,7 +128,9 @@ impl ChunkEngine {
 
         let file_hash = sha256_hex(&data);
         if file_hash != expected_hash {
-            return Err(WiosError::Storage("File hash mismatch after reassembly".into()));
+            return Err(WiosError::Storage(
+                "File hash mismatch after reassembly".into(),
+            ));
         }
 
         Ok(data)

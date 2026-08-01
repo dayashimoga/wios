@@ -2,7 +2,6 @@
 
 use serde::{Deserialize, Serialize};
 
-
 /// An anomaly detection result.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Anomaly {
@@ -17,7 +16,12 @@ pub struct Anomaly {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum AnomalySeverity { Low, Medium, High, Critical }
+pub enum AnomalySeverity {
+    Low,
+    Medium,
+    High,
+    Critical,
+}
 
 /// Simple statistical anomaly detector using z-score.
 pub struct AnomalyDetector {
@@ -28,35 +32,59 @@ pub struct AnomalyDetector {
 
 impl AnomalyDetector {
     pub fn new(threshold: f64, window_size: usize) -> Self {
-        Self { baselines: std::collections::HashMap::new(), threshold, window_size }
+        Self {
+            baselines: std::collections::HashMap::new(),
+            threshold,
+            window_size,
+        }
     }
 
     /// Feed a data point and check for anomaly.
     pub fn check(&mut self, metric: &str, value: f64) -> Option<Anomaly> {
         let history = self.baselines.entry(metric.to_string()).or_default();
         history.push(value);
-        if history.len() > self.window_size { history.remove(0); }
-        if history.len() < 5 { return None; } // Need min samples
+        if history.len() > self.window_size {
+            history.remove(0);
+        }
+        if history.len() < 5 {
+            return None;
+        } // Need min samples
 
         let mean: f64 = history.iter().sum::<f64>() / history.len() as f64;
-        let variance: f64 = history.iter().map(|v| (v - mean).powi(2)).sum::<f64>() / history.len() as f64;
+        let variance: f64 =
+            history.iter().map(|v| (v - mean).powi(2)).sum::<f64>() / history.len() as f64;
         let std_dev = variance.sqrt();
-        if std_dev < 1e-9 { return None; }
+        if std_dev < 1e-9 {
+            return None;
+        }
 
         let z_score = (value - mean).abs() / std_dev;
         if z_score > self.threshold {
-            let severity = if z_score > 4.0 { AnomalySeverity::Critical }
-                else if z_score > 3.0 { AnomalySeverity::High }
-                else if z_score > 2.5 { AnomalySeverity::Medium }
-                else { AnomalySeverity::Low };
+            let severity = if z_score > 4.0 {
+                AnomalySeverity::Critical
+            } else if z_score > 3.0 {
+                AnomalySeverity::High
+            } else if z_score > 2.5 {
+                AnomalySeverity::Medium
+            } else {
+                AnomalySeverity::Low
+            };
             Some(Anomaly {
                 id: uuid::Uuid::new_v4().to_string(),
-                source: "anomaly_detector".into(), metric: metric.into(),
-                expected: mean, actual: value, deviation: z_score, severity,
-                timestamp: std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH)
-                    .unwrap_or_default().as_secs(),
+                source: "anomaly_detector".into(),
+                metric: metric.into(),
+                expected: mean,
+                actual: value,
+                deviation: z_score,
+                severity,
+                timestamp: std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .unwrap_or_default()
+                    .as_secs(),
             })
-        } else { None }
+        } else {
+            None
+        }
     }
 }
 
@@ -79,7 +107,9 @@ impl Default for NlpProcessor {
 }
 
 impl NlpProcessor {
-    pub fn new() -> Self { Self }
+    pub fn new() -> Self {
+        Self
+    }
 
     /// Parse user input into an intent.
     pub fn parse(&self, text: &str) -> NlpIntent {
@@ -102,7 +132,10 @@ impl NlpProcessor {
 
         NlpIntent {
             intent: intent.into(),
-            entities: entities.into_iter().map(|(k, v)| (k.into(), v.into())).collect(),
+            entities: entities
+                .into_iter()
+                .map(|(k, v)| (k.into(), v.into()))
+                .collect(),
             confidence: if intent == "unknown" { 0.0 } else { 0.85 },
             raw_text: text.into(),
         }
@@ -119,27 +152,44 @@ pub struct WorkflowStep {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum StepStatus { Pending, Running, Completed, Failed }
+pub enum StepStatus {
+    Pending,
+    Running,
+    Completed,
+    Failed,
+}
 
 pub struct WorkflowEngine {
     steps: Vec<WorkflowStep>,
 }
 
 impl WorkflowEngine {
-    pub fn new() -> Self { Self { steps: Vec::new() } }
+    pub fn new() -> Self {
+        Self { steps: Vec::new() }
+    }
 
     pub fn add_step(&mut self, id: String, action: String, depends_on: Vec<String>) {
-        self.steps.push(WorkflowStep { id, action, depends_on, status: StepStatus::Pending });
+        self.steps.push(WorkflowStep {
+            id,
+            action,
+            depends_on,
+            status: StepStatus::Pending,
+        });
     }
 
     /// Get steps ready to execute (all dependencies completed).
     pub fn ready_steps(&self) -> Vec<&WorkflowStep> {
-        self.steps.iter().filter(|s| {
-            s.status == StepStatus::Pending
-                && s.depends_on.iter().all(|dep| {
-                    self.steps.iter().any(|d| d.id == *dep && d.status == StepStatus::Completed)
-                })
-        }).collect()
+        self.steps
+            .iter()
+            .filter(|s| {
+                s.status == StepStatus::Pending
+                    && s.depends_on.iter().all(|dep| {
+                        self.steps
+                            .iter()
+                            .any(|d| d.id == *dep && d.status == StepStatus::Completed)
+                    })
+            })
+            .collect()
     }
 
     pub fn complete_step(&mut self, id: &str) {
@@ -154,7 +204,9 @@ impl WorkflowEngine {
 }
 
 impl Default for WorkflowEngine {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 #[cfg(test)]

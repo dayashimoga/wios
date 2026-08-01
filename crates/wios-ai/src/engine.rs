@@ -65,7 +65,8 @@ impl InferenceEngine {
                         };
 
                         if let Some(mt) = model_type {
-                            let name = path.file_stem()
+                            let name = path
+                                .file_stem()
                                 .and_then(|s| s.to_str())
                                 .unwrap_or("unknown")
                                 .to_string();

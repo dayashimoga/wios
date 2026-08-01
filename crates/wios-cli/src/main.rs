@@ -146,18 +146,16 @@ fn main() {
             // In production, this would start the tokio runtime and axum server
             std::thread::park(); // Block until Ctrl+C
         }
-        Commands::Config { key } => {
-            match key {
-                Some(k) => println!("Config '{}': (use daemon for live config)", k),
-                None => {
-                    println!("WIOS Configuration:");
-                    println!("  node.name: wios-node");
-                    println!("  network.port: 3000");
-                    println!("  storage.backend: sqlite");
-                    println!("  ai.backend: onnx");
-                }
+        Commands::Config { key } => match key {
+            Some(k) => println!("Config '{}': (use daemon for live config)", k),
+            None => {
+                println!("WIOS Configuration:");
+                println!("  node.name: wios-node");
+                println!("  network.port: 3000");
+                println!("  storage.backend: sqlite");
+                println!("  ai.backend: onnx");
             }
-        }
+        },
         Commands::Init { name } => {
             println!("Initializing WIOS node '{}'...", name);
             println!("  ✅ Generated Ed25519 keypair");

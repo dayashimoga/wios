@@ -78,7 +78,9 @@ pub struct RocksDbBackend {
 impl RocksDbBackend {
     /// Create a new RocksDB backend (stub — returns error until rocksdb crate is linked).
     pub fn new(path: &str) -> WiosResult<Self> {
-        Ok(Self { _path: path.to_string() })
+        Ok(Self {
+            _path: path.to_string(),
+        })
     }
 }
 

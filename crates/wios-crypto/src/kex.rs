@@ -1,8 +1,8 @@
 //! X25519 Diffie-Hellman key exchange.
 
 use rand::rngs::OsRng;
-use x25519_dalek::{PublicKey, SharedSecret};
 use wios_core::error::{WiosError, WiosResult};
+use x25519_dalek::{PublicKey, SharedSecret};
 
 /// X25519 key exchange service.
 pub struct KeyExchange;
@@ -38,7 +38,9 @@ impl KeyExchange {
         let bytes = shared.to_bytes();
         // Reject low-order points (all zeros = identity element)
         if bytes.iter().all(|&b| b == 0) {
-            return Err(WiosError::Crypto("Key exchange produced zero shared secret (low-order point)".into()));
+            return Err(WiosError::Crypto(
+                "Key exchange produced zero shared secret (low-order point)".into(),
+            ));
         }
         Ok(bytes)
     }

@@ -326,12 +326,7 @@ mod tests {
 
     #[test]
     fn test_mesh_message() {
-        let msg = MeshMessage::new(
-            NodeId::new(),
-            None,
-            "test-topic",
-            b"hello".to_vec(),
-        );
+        let msg = MeshMessage::new(NodeId::new(), None, "test-topic", b"hello".to_vec());
         assert_eq!(msg.topic, "test-topic");
         assert_eq!(msg.hop_count, 0);
         assert_eq!(msg.priority, MessagePriority::Normal);

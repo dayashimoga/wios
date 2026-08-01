@@ -10,14 +10,26 @@ use wios_core::types::NodeId;
 /// Shareable device capability.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum DeviceResource {
-    Camera, Microphone, Display, Keyboard, Mouse,
-    Storage, Printer, Scanner, Gpu, Cpu, Ram, Sensor(String),
+    Camera,
+    Microphone,
+    Display,
+    Keyboard,
+    Mouse,
+    Storage,
+    Printer,
+    Scanner,
+    Gpu,
+    Cpu,
+    Ram,
+    Sensor(String),
 }
 
 /// Permission level for shared resources.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SharePermission {
-    ReadOnly, ReadWrite, FullControl,
+    ReadOnly,
+    ReadWrite,
+    FullControl,
 }
 
 /// A shared resource offering.
@@ -55,10 +67,20 @@ impl DeviceBus {
     }
 
     /// Offer a resource for sharing.
-    pub async fn share_resource(&self, resource: DeviceResource, owner: NodeId, permission: SharePermission, max_users: u32) -> String {
+    pub async fn share_resource(
+        &self,
+        resource: DeviceResource,
+        owner: NodeId,
+        permission: SharePermission,
+        max_users: u32,
+    ) -> String {
         let id = format!("{}-{:?}", owner.as_str(), resource);
         let shared = SharedResource {
-            resource, owner, permission, active_users: Vec::new(), max_users,
+            resource,
+            owner,
+            permission,
+            active_users: Vec::new(),
+            max_users,
             metadata: HashMap::new(),
         };
         self.shared.write().await.insert(id.clone(), shared);
@@ -68,8 +90,10 @@ impl DeviceBus {
     /// Request access to a shared resource.
     pub async fn request_access(&self, resource_id: &str, requester: NodeId) -> WiosResult<()> {
         let mut shared = self.shared.write().await;
-        let res = shared.get_mut(resource_id)
-            .ok_or(WiosError::NotFound { entity: "resource".into(), id: resource_id.into() })?;
+        let res = shared.get_mut(resource_id).ok_or(WiosError::NotFound {
+            entity: "resource".into(),
+            id: resource_id.into(),
+        })?;
         if res.active_users.len() as u32 >= res.max_users {
             return Err(WiosError::Storage("Resource at max capacity".into()));
         }
@@ -91,8 +115,10 @@ impl DeviceBus {
     /// Unshare a resource (owner only).
     pub async fn unshare(&self, resource_id: &str, owner: &NodeId) -> WiosResult<()> {
         let mut shared = self.shared.write().await;
-        let res = shared.get(resource_id)
-            .ok_or(WiosError::NotFound { entity: "resource".into(), id: resource_id.into() })?;
+        let res = shared.get(resource_id).ok_or(WiosError::NotFound {
+            entity: "resource".into(),
+            id: resource_id.into(),
+        })?;
         if res.owner != *owner {
             return Err(WiosError::Crypto("Only owner can unshare".into()));
         }
@@ -117,7 +143,10 @@ impl DeviceBus {
 
     /// Find resources by type.
     pub async fn find_by_type(&self, resource_type: &DeviceResource) -> Vec<SharedResource> {
-        self.shared.read().await.values()
+        self.shared
+            .read()
+            .await
+            .values()
             .filter(|r| r.resource == *resource_type)
             .cloned()
             .collect()
@@ -125,7 +154,9 @@ impl DeviceBus {
 }
 
 impl Default for DeviceBus {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 #[cfg(test)]
@@ -138,7 +169,14 @@ mod tests {
         let owner = NodeId::new();
         let user = NodeId::new();
 
-        let id = bus.share_resource(DeviceResource::Camera, owner.clone(), SharePermission::ReadOnly, 2).await;
+        let id = bus
+            .share_resource(
+                DeviceResource::Camera,
+                owner.clone(),
+                SharePermission::ReadOnly,
+                2,
+            )
+            .await;
         bus.request_access(&id, user.clone()).await.unwrap();
 
         let resources = bus.list_resources().await;
@@ -154,7 +192,14 @@ mod tests {
     async fn test_max_users() {
         let bus = DeviceBus::new();
         let owner = NodeId::new();
-        let id = bus.share_resource(DeviceResource::Display, owner, SharePermission::ReadWrite, 1).await;
+        let id = bus
+            .share_resource(
+                DeviceResource::Display,
+                owner,
+                SharePermission::ReadWrite,
+                1,
+            )
+            .await;
 
         bus.request_access(&id, NodeId::new()).await.unwrap();
         assert!(bus.request_access(&id, NodeId::new()).await.is_err());
@@ -170,7 +215,8 @@ mod tests {
             data: b"hello".to_vec(),
             source: NodeId::new(),
             timestamp: 12345,
-        }).await;
+        })
+        .await;
 
         let clip = bus.get_clipboard().await.unwrap();
         assert_eq!(clip.data, b"hello");

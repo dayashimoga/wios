@@ -67,7 +67,9 @@ impl OfflineQueue {
         }
         queue.push_back(msg);
         // Sort by priority (highest first)
-        queue.make_contiguous().sort_by_key(|b| std::cmp::Reverse(b.priority));
+        queue
+            .make_contiguous()
+            .sort_by_key(|b| std::cmp::Reverse(b.priority));
         Ok(())
     }
 
@@ -123,7 +125,12 @@ impl OfflineQueue {
 
     /// Get queue depth for a specific destination.
     pub async fn pending_for(&self, destination: &str) -> usize {
-        self.queue.lock().await.iter().filter(|m| m.destination == destination && !m.is_expired()).count()
+        self.queue
+            .lock()
+            .await
+            .iter()
+            .filter(|m| m.destination == destination && !m.is_expired())
+            .count()
     }
 }
 
@@ -147,8 +154,12 @@ mod tests {
     #[tokio::test]
     async fn test_enqueue_dequeue() {
         let q = OfflineQueue::new(100);
-        q.enqueue(make_msg("peer1", MessagePriority::Normal)).await.unwrap();
-        q.enqueue(make_msg("peer2", MessagePriority::High)).await.unwrap();
+        q.enqueue(make_msg("peer1", MessagePriority::Normal))
+            .await
+            .unwrap();
+        q.enqueue(make_msg("peer2", MessagePriority::High))
+            .await
+            .unwrap();
         assert_eq!(q.len().await, 2);
 
         let msgs = q.drain_for("peer1").await;
@@ -159,9 +170,15 @@ mod tests {
     #[tokio::test]
     async fn test_priority_ordering() {
         let q = OfflineQueue::new(100);
-        q.enqueue(make_msg("p", MessagePriority::Low)).await.unwrap();
-        q.enqueue(make_msg("p", MessagePriority::Critical)).await.unwrap();
-        q.enqueue(make_msg("p", MessagePriority::Normal)).await.unwrap();
+        q.enqueue(make_msg("p", MessagePriority::Low))
+            .await
+            .unwrap();
+        q.enqueue(make_msg("p", MessagePriority::Critical))
+            .await
+            .unwrap();
+        q.enqueue(make_msg("p", MessagePriority::Normal))
+            .await
+            .unwrap();
 
         let msgs = q.drain_for("p").await;
         assert_eq!(msgs[0].priority, MessagePriority::Critical);
@@ -171,8 +188,13 @@ mod tests {
     #[tokio::test]
     async fn test_queue_full() {
         let q = OfflineQueue::new(1);
-        q.enqueue(make_msg("p", MessagePriority::Normal)).await.unwrap();
-        assert!(q.enqueue(make_msg("p", MessagePriority::Normal)).await.is_err());
+        q.enqueue(make_msg("p", MessagePriority::Normal))
+            .await
+            .unwrap();
+        assert!(q
+            .enqueue(make_msg("p", MessagePriority::Normal))
+            .await
+            .is_err());
     }
 
     #[tokio::test]

@@ -9,14 +9,14 @@
 //! - NLP intent parsing
 //! - DAG workflow orchestration
 
+pub mod backends;
 pub mod engine;
+pub mod intelligence;
 pub mod model_manager;
 pub mod pipeline;
-pub mod backends;
-pub mod intelligence;
 
+pub use backends::{AiBackend, LlamaBackend, OnnxBackend, TfLiteBackend};
 pub use engine::InferenceEngine;
+pub use intelligence::{AnomalyDetector, NlpProcessor, WorkflowEngine};
 pub use model_manager::ModelManager;
 pub use pipeline::InferencePipeline;
-pub use backends::{AiBackend, OnnxBackend, TfLiteBackend, LlamaBackend};
-pub use intelligence::{AnomalyDetector, NlpProcessor, WorkflowEngine};

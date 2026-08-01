@@ -2,10 +2,10 @@
 //!
 //! REST, gRPC, and plugin API server for external access to WIOS services.
 
-pub mod rest;
-pub mod middleware;
 pub mod grpc;
+pub mod middleware;
 pub mod plugin;
+pub mod rest;
 
-pub use rest::create_router;
 pub use plugin::PluginRegistry;
+pub use rest::create_router;

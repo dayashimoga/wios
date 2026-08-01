@@ -16,26 +16,26 @@
 //! - Secure device pairing
 //! - Secrets vault
 
-pub mod keystore;
-pub mod encryption;
-pub mod signing;
-pub mod hashing;
-pub mod kex;
-pub mod rbac;
 pub mod audit;
-pub mod session;
-pub mod identity;
-pub mod mfa;
+pub mod encryption;
 pub mod extended;
+pub mod hashing;
+pub mod identity;
+pub mod kex;
+pub mod keystore;
+pub mod mfa;
+pub mod rbac;
+pub mod session;
+pub mod signing;
 
-pub use keystore::KeyStore;
-pub use encryption::EncryptionService;
-pub use signing::SigningService;
-pub use hashing::HashingService;
-pub use kex::KeyExchange;
-pub use rbac::{RbacEngine, Role, Permission};
 pub use audit::AuditLogger;
-pub use session::SessionManager;
+pub use encryption::EncryptionService;
+pub use extended::{PairingManager, PasskeyManager, SecretsVault};
+pub use hashing::HashingService;
 pub use identity::CertificateManager;
-pub use mfa::{Totp, RecoveryCodes};
-pub use extended::{PasskeyManager, PairingManager, SecretsVault};
+pub use kex::KeyExchange;
+pub use keystore::KeyStore;
+pub use mfa::{RecoveryCodes, Totp};
+pub use rbac::{Permission, RbacEngine, Role};
+pub use session::SessionManager;
+pub use signing::SigningService;

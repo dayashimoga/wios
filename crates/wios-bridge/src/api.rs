@@ -94,7 +94,11 @@ pub fn crypto_sign(private_key_hex: String, data: Vec<u8>) -> Result<String, Str
 }
 
 /// Verify an Ed25519 signature. All inputs hex-encoded.
-pub fn crypto_verify(public_key_hex: String, data: Vec<u8>, signature_hex: String) -> Result<bool, String> {
+pub fn crypto_verify(
+    public_key_hex: String,
+    data: Vec<u8>,
+    signature_hex: String,
+) -> Result<bool, String> {
     let key = hex_decode(&public_key_hex).map_err(|e| e.to_string())?;
     let sig = hex_decode(&signature_hex).map_err(|e| e.to_string())?;
     wios_crypto::SigningService::verify(&key, &data, &sig).map_err(|e| e.to_string())
@@ -152,7 +156,9 @@ pub fn ai_list_models(models_dir: String) -> String {
         .build()
         .unwrap();
     let engine = wios_ai::InferenceEngine::new(models_dir, 2048);
-    let models = rt.block_on(engine.list_available_models()).unwrap_or_default();
+    let models = rt
+        .block_on(engine.list_available_models())
+        .unwrap_or_default();
     serde_json::to_string(&models).unwrap_or_default()
 }
 

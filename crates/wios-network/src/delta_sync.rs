@@ -23,15 +23,20 @@ pub struct Delta {
 impl Delta {
     /// Size of the delta in bytes (approximate).
     pub fn size(&self) -> usize {
-        self.ops.iter().map(|op| match op {
-            DeltaOp::Copy { .. } => 16, // metadata only
-            DeltaOp::Insert(data) => data.len() + 8,
-        }).sum()
+        self.ops
+            .iter()
+            .map(|op| match op {
+                DeltaOp::Copy { .. } => 16, // metadata only
+                DeltaOp::Insert(data) => data.len() + 8,
+            })
+            .sum()
     }
 
     /// Compression ratio vs sending full target.
     pub fn ratio(&self) -> f64 {
-        if self.target_len == 0 { return 1.0; }
+        if self.target_len == 0 {
+            return 1.0;
+        }
         self.size() as f64 / self.target_len as f64
     }
 }
@@ -64,7 +69,10 @@ pub fn compute_delta(source: &[u8], target: &[u8], block_size: usize) -> Delta {
             {
                 match_len += 1;
             }
-            ops.push(DeltaOp::Copy { offset: src_offset, len: match_len });
+            ops.push(DeltaOp::Copy {
+                offset: src_offset,
+                len: match_len,
+            });
             ti += match_len;
         } else {
             // No match — find how far until next match
@@ -72,7 +80,9 @@ pub fn compute_delta(source: &[u8], target: &[u8], block_size: usize) -> Delta {
             while insert_end < target.len() {
                 let rem = target.len() - insert_end;
                 let cl = block_size.min(rem);
-                if cl >= block_size && source_blocks.contains_key(&target[insert_end..insert_end + cl]) {
+                if cl >= block_size
+                    && source_blocks.contains_key(&target[insert_end..insert_end + cl])
+                {
                     break;
                 }
                 insert_end += 1;
@@ -107,7 +117,9 @@ pub fn apply_delta(source: &[u8], delta: &Delta) -> WiosResult<Vec<u8>> {
     }
     if result.len() != delta.target_len {
         return Err(WiosError::Storage(format!(
-            "Delta result length mismatch: got {} expected {}", result.len(), delta.target_len
+            "Delta result length mismatch: got {} expected {}",
+            result.len(),
+            delta.target_len
         )));
     }
     Ok(result)

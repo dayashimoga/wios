@@ -31,24 +31,38 @@ pub struct ReplicationManager {
 
 impl ReplicationManager {
     pub fn new(local_node: NodeId) -> Self {
-        Self { replicas: HashMap::new(), local_node }
+        Self {
+            replicas: HashMap::new(),
+            local_node,
+        }
     }
 
     /// Register data for replication.
     pub fn register(&mut self, key: String, desired_replicas: u32) {
         let mut state = ReplicaState {
-            key: key.clone(), version: 1, replicas: HashMap::new(), desired_replicas,
+            key: key.clone(),
+            version: 1,
+            replicas: HashMap::new(),
+            desired_replicas,
         };
-        state.replicas.insert(self.local_node.as_str().to_string(), ReplicaInfo {
-            node_id: self.local_node.clone(), version: 1, synced: true, last_sync: now(),
-        });
+        state.replicas.insert(
+            self.local_node.as_str().to_string(),
+            ReplicaInfo {
+                node_id: self.local_node.clone(),
+                version: 1,
+                synced: true,
+                last_sync: now(),
+            },
+        );
         self.replicas.insert(key, state);
     }
 
     /// Update local version.
     pub fn update(&mut self, key: &str) -> WiosResult<u64> {
-        let state = self.replicas.get_mut(key)
-            .ok_or(WiosError::NotFound { entity: "replica".into(), id: key.into() })?;
+        let state = self.replicas.get_mut(key).ok_or(WiosError::NotFound {
+            entity: "replica".into(),
+            id: key.into(),
+        })?;
         state.version += 1;
         if let Some(local) = state.replicas.get_mut(self.local_node.as_str()) {
             local.version = state.version;
@@ -59,11 +73,19 @@ impl ReplicationManager {
 
     /// Record that a remote node has synced.
     pub fn ack_sync(&mut self, key: &str, node: NodeId, version: u64) -> WiosResult<()> {
-        let state = self.replicas.get_mut(key)
-            .ok_or(WiosError::NotFound { entity: "replica".into(), id: key.into() })?;
-        let info = state.replicas.entry(node.as_str().to_string()).or_insert(ReplicaInfo {
-            node_id: node, version: 0, synced: false, last_sync: 0,
-        });
+        let state = self.replicas.get_mut(key).ok_or(WiosError::NotFound {
+            entity: "replica".into(),
+            id: key.into(),
+        })?;
+        let info = state
+            .replicas
+            .entry(node.as_str().to_string())
+            .or_insert(ReplicaInfo {
+                node_id: node,
+                version: 0,
+                synced: false,
+                last_sync: 0,
+            });
         info.version = version;
         info.synced = version >= state.version;
         info.last_sync = now();
@@ -72,25 +94,33 @@ impl ReplicationManager {
 
     /// Get items needing more replicas.
     pub fn under_replicated(&self) -> Vec<&ReplicaState> {
-        self.replicas.values()
+        self.replicas
+            .values()
             .filter(|s| (s.replicas.len() as u32) < s.desired_replicas)
             .collect()
     }
 
     /// Get items with stale replicas.
     pub fn stale_replicas(&self, key: &str) -> Vec<&ReplicaInfo> {
-        self.replicas.get(key).map(|s| {
-            s.replicas.values().filter(|r| !r.synced).collect()
-        }).unwrap_or_default()
+        self.replicas
+            .get(key)
+            .map(|s| s.replicas.values().filter(|r| !r.synced).collect())
+            .unwrap_or_default()
     }
 
-    pub fn status(&self, key: &str) -> Option<&ReplicaState> { self.replicas.get(key) }
-    pub fn count(&self) -> usize { self.replicas.len() }
+    pub fn status(&self, key: &str) -> Option<&ReplicaState> {
+        self.replicas.get(key)
+    }
+    pub fn count(&self) -> usize {
+        self.replicas.len()
+    }
 }
 
 fn now() -> u64 {
-    std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH)
-        .unwrap_or_default().as_secs()
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_secs()
 }
 
 #[cfg(test)]

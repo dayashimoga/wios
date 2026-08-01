@@ -1,10 +1,6 @@
 //! API middleware for authentication, rate limiting, etc.
 
-use axum::{
-    extract::Request,
-    middleware::Next,
-    response::Response,
-};
+use axum::{extract::Request, middleware::Next, response::Response};
 use tracing::info;
 
 /// Logging middleware that records request details.

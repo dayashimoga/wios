@@ -32,27 +32,50 @@ pub struct VersionManager {
 
 impl VersionManager {
     pub fn new(max_versions: usize) -> Self {
-        Self { histories: HashMap::new(), max_versions }
+        Self {
+            histories: HashMap::new(),
+            max_versions,
+        }
     }
 
     /// Commit a new version.
-    pub fn commit(&mut self, key: &str, hash: String, size_bytes: u64, author: String, message: String) -> u64 {
-        let history = self.histories.entry(key.to_string()).or_insert(VersionHistory {
-            key: key.to_string(), current: 0, versions: Vec::new(),
-        });
+    pub fn commit(
+        &mut self,
+        key: &str,
+        hash: String,
+        size_bytes: u64,
+        author: String,
+        message: String,
+    ) -> u64 {
+        let history = self
+            .histories
+            .entry(key.to_string())
+            .or_insert(VersionHistory {
+                key: key.to_string(),
+                current: 0,
+                versions: Vec::new(),
+            });
         let version = history.current + 1;
         let parent = if version > 1 { Some(version - 1) } else { None };
         history.versions.push(Version {
-            version, hash, size_bytes, author, message,
-            timestamp: std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH)
-                .unwrap_or_default().as_secs(),
+            version,
+            hash,
+            size_bytes,
+            author,
+            message,
+            timestamp: std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap_or_default()
+                .as_secs(),
             parent,
         });
         history.current = version;
 
         // Prune old versions
         if history.versions.len() > self.max_versions {
-            history.versions.drain(..history.versions.len() - self.max_versions);
+            history
+                .versions
+                .drain(..history.versions.len() - self.max_versions);
         }
         version
     }
@@ -64,10 +87,18 @@ impl VersionManager {
 
     /// Rollback to a specific version.
     pub fn rollback(&mut self, key: &str, target_version: u64) -> WiosResult<&Version> {
-        let history = self.histories.get_mut(key)
-            .ok_or(WiosError::NotFound { entity: "history".into(), id: key.into() })?;
-        let version = history.versions.iter().find(|v| v.version == target_version)
-            .ok_or(WiosError::NotFound { entity: "version".into(), id: target_version.to_string() })?;
+        let history = self.histories.get_mut(key).ok_or(WiosError::NotFound {
+            entity: "history".into(),
+            id: key.into(),
+        })?;
+        let version = history
+            .versions
+            .iter()
+            .find(|v| v.version == target_version)
+            .ok_or(WiosError::NotFound {
+                entity: "version".into(),
+                id: target_version.to_string(),
+            })?;
         history.current = target_version;
         Ok(version)
     }
@@ -75,14 +106,21 @@ impl VersionManager {
     /// Get current version info.
     pub fn current(&self, key: &str) -> Option<&Version> {
         let history = self.histories.get(key)?;
-        history.versions.iter().find(|v| v.version == history.current)
+        history
+            .versions
+            .iter()
+            .find(|v| v.version == history.current)
     }
 
-    pub fn count(&self) -> usize { self.histories.len() }
+    pub fn count(&self) -> usize {
+        self.histories.len()
+    }
 }
 
 impl Default for VersionManager {
-    fn default() -> Self { Self::new(50) }
+    fn default() -> Self {
+        Self::new(50)
+    }
 }
 
 #[cfg(test)]
@@ -92,8 +130,20 @@ mod tests {
     #[test]
     fn test_versioning() {
         let mut mgr = VersionManager::new(10);
-        let v1 = mgr.commit("file.txt", "abc123".into(), 100, "user".into(), "Initial".into());
-        let v2 = mgr.commit("file.txt", "def456".into(), 150, "user".into(), "Update".into());
+        let v1 = mgr.commit(
+            "file.txt",
+            "abc123".into(),
+            100,
+            "user".into(),
+            "Initial".into(),
+        );
+        let v2 = mgr.commit(
+            "file.txt",
+            "def456".into(),
+            150,
+            "user".into(),
+            "Update".into(),
+        );
 
         assert_eq!(v1, 1);
         assert_eq!(v2, 2);
@@ -114,7 +164,13 @@ mod tests {
     fn test_pruning() {
         let mut mgr = VersionManager::new(3);
         for i in 1..=5 {
-            mgr.commit("key", format!("h{}", i), i * 10, "a".into(), format!("v{}", i));
+            mgr.commit(
+                "key",
+                format!("h{}", i),
+                i * 10,
+                "a".into(),
+                format!("v{}", i),
+            );
         }
         assert_eq!(mgr.history("key").unwrap().versions.len(), 3);
     }

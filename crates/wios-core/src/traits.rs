@@ -117,7 +117,12 @@ pub trait AiService: Send + Sync {
     async fn infer(&self, model_id: &str, input: &[u8]) -> WiosResult<Vec<u8>>;
 
     /// Run text generation (LLM).
-    async fn generate_text(&self, model_id: &str, prompt: &str, max_tokens: u32) -> WiosResult<String>;
+    async fn generate_text(
+        &self,
+        model_id: &str,
+        prompt: &str,
+        max_tokens: u32,
+    ) -> WiosResult<String>;
 }
 
 /// Model information.

@@ -43,7 +43,9 @@ pub struct WiosGrpcServer {
 
 impl WiosGrpcServer {
     pub fn new() -> Self {
-        Self { start_time: std::time::Instant::now() }
+        Self {
+            start_time: std::time::Instant::now(),
+        }
     }
 }
 

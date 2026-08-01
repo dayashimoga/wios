@@ -14,22 +14,22 @@
 //! - Snapshot backup/restore
 //! - System metrics collection
 
-pub mod sqlite;
-pub mod migration;
-pub mod sync_engine;
-pub mod chunking;
-pub mod quota;
 pub mod backend;
-pub mod replication;
-pub mod versioning;
 pub mod backup;
+pub mod chunking;
+pub mod migration;
+pub mod quota;
+pub mod replication;
+pub mod sqlite;
+pub mod sync_engine;
+pub mod versioning;
 
-pub use sqlite::SqliteStore;
-pub use migration::MigrationRunner;
-pub use sync_engine::SyncEngine;
-pub use chunking::ChunkEngine;
-pub use quota::QuotaManager;
-pub use backend::{StorageBackend, SqliteBackend, RocksDbBackend};
-pub use replication::ReplicationManager;
-pub use versioning::VersionManager;
+pub use backend::{RocksDbBackend, SqliteBackend, StorageBackend};
 pub use backup::{BackupManager, MetricsCollector};
+pub use chunking::ChunkEngine;
+pub use migration::MigrationRunner;
+pub use quota::QuotaManager;
+pub use replication::ReplicationManager;
+pub use sqlite::SqliteStore;
+pub use sync_engine::SyncEngine;
+pub use versioning::VersionManager;

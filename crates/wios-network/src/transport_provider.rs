@@ -89,7 +89,9 @@ pub struct TransportRegistry {
 
 impl TransportRegistry {
     pub fn new() -> Self {
-        Self { providers: HashMap::new() }
+        Self {
+            providers: HashMap::new(),
+        }
     }
 
     /// Register a transport provider.
@@ -100,7 +102,8 @@ impl TransportRegistry {
 
     /// Get available transports.
     pub fn available(&self) -> Vec<TransportInfo> {
-        self.providers.values()
+        self.providers
+            .values()
             .filter(|p| p.is_available())
             .map(|p| p.info())
             .collect()
@@ -108,7 +111,9 @@ impl TransportRegistry {
 
     /// Select best transport for a message based on priority and bandwidth.
     pub fn select_best(&self, _reliable: bool) -> Option<TransportType> {
-        let mut candidates: Vec<_> = self.providers.values()
+        let mut candidates: Vec<_> = self
+            .providers
+            .values()
             .filter(|p| p.is_available())
             .map(|p| p.info())
             .collect();
@@ -128,7 +133,9 @@ impl TransportRegistry {
 }
 
 impl Default for TransportRegistry {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 /// Stub TCP transport for testing.
@@ -140,13 +147,19 @@ pub struct StubTransport {
 
 impl StubTransport {
     pub fn new(tt: TransportType, available: bool) -> Self {
-        Self { transport_type: tt, available, started: false }
+        Self {
+            transport_type: tt,
+            available,
+            started: false,
+        }
     }
 }
 
 #[async_trait]
 impl TransportProvider for StubTransport {
-    fn transport_type(&self) -> TransportType { self.transport_type.clone() }
+    fn transport_type(&self) -> TransportType {
+        self.transport_type.clone()
+    }
 
     fn info(&self) -> TransportInfo {
         TransportInfo {
@@ -165,7 +178,10 @@ impl TransportProvider for StubTransport {
                 TransportType::WifiDirect => 200.0,
                 _ => 1000.0,
             },
-            supports_broadcast: matches!(self.transport_type, TransportType::BluetoothMesh | TransportType::LoRa),
+            supports_broadcast: matches!(
+                self.transport_type,
+                TransportType::BluetoothMesh | TransportType::LoRa
+            ),
             supports_mesh: matches!(self.transport_type, TransportType::BluetoothMesh),
             power_consumption: match &self.transport_type {
                 TransportType::BluetoothLe => PowerLevel::UltraLow,
@@ -175,14 +191,28 @@ impl TransportProvider for StubTransport {
         }
     }
 
-    fn is_available(&self) -> bool { self.available }
+    fn is_available(&self) -> bool {
+        self.available
+    }
 
-    async fn start(&mut self) -> WiosResult<()> { self.started = true; Ok(()) }
-    async fn stop(&mut self) -> WiosResult<()> { self.started = false; Ok(()) }
+    async fn start(&mut self) -> WiosResult<()> {
+        self.started = true;
+        Ok(())
+    }
+    async fn stop(&mut self) -> WiosResult<()> {
+        self.started = false;
+        Ok(())
+    }
 
-    async fn send(&self, _message: TransportMessage) -> WiosResult<()> { Ok(()) }
-    async fn broadcast(&self, _payload: &[u8]) -> WiosResult<u32> { Ok(0) }
-    async fn discover(&self) -> WiosResult<Vec<NodeId>> { Ok(vec![]) }
+    async fn send(&self, _message: TransportMessage) -> WiosResult<()> {
+        Ok(())
+    }
+    async fn broadcast(&self, _payload: &[u8]) -> WiosResult<u32> {
+        Ok(0)
+    }
+    async fn discover(&self) -> WiosResult<Vec<NodeId>> {
+        Ok(vec![])
+    }
 }
 
 #[cfg(test)]
@@ -193,7 +223,10 @@ mod tests {
     fn test_transport_registry() {
         let mut reg = TransportRegistry::new();
         reg.register(Box::new(StubTransport::new(TransportType::Tcp, true)));
-        reg.register(Box::new(StubTransport::new(TransportType::BluetoothLe, true)));
+        reg.register(Box::new(StubTransport::new(
+            TransportType::BluetoothLe,
+            true,
+        )));
         reg.register(Box::new(StubTransport::new(TransportType::LoRa, false)));
 
         assert_eq!(reg.count(), 3);
@@ -204,7 +237,10 @@ mod tests {
     fn test_select_best_transport() {
         let mut reg = TransportRegistry::new();
         reg.register(Box::new(StubTransport::new(TransportType::Tcp, true)));
-        reg.register(Box::new(StubTransport::new(TransportType::BluetoothLe, true)));
+        reg.register(Box::new(StubTransport::new(
+            TransportType::BluetoothLe,
+            true,
+        )));
 
         let best = reg.select_best(true);
         assert_eq!(best, Some(TransportType::Tcp)); // TCP has higher bandwidth

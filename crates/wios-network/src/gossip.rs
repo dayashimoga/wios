@@ -1,10 +1,10 @@
 //! Gossipsub messaging API wrapper.
 
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use chrono::{DateTime, Utc};
 
 /// A gossipsub topic.
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
@@ -47,7 +47,11 @@ impl MessageBroker {
     /// Subscribe to a topic.
     pub async fn subscribe(&self, topic: &str) {
         self.subscriptions.write().await.insert(topic.to_string());
-        self.inbox.write().await.entry(topic.to_string()).or_default();
+        self.inbox
+            .write()
+            .await
+            .entry(topic.to_string())
+            .or_default();
     }
 
     /// Unsubscribe from a topic.

@@ -54,7 +54,10 @@ pub struct PositionEstimator {
 
 impl PositionEstimator {
     pub fn new(path_loss_exponent: f64, reference_rssi: f64) -> Self {
-        Self { path_loss_exponent, reference_rssi }
+        Self {
+            path_loss_exponent,
+            reference_rssi,
+        }
     }
 
     /// Estimate distance from RSSI using log-distance path loss model.
@@ -64,7 +67,8 @@ impl PositionEstimator {
 
     /// Estimate position from multiple beacon readings via weighted centroid.
     pub fn estimate_position(&self, readings: &[RssiReading]) -> Option<Position> {
-        let positioned: Vec<_> = readings.iter()
+        let positioned: Vec<_> = readings
+            .iter()
             .filter_map(|r| {
                 r.beacon_position.map(|pos| {
                     let dist = self.rssi_to_distance(r.rssi_dbm);
@@ -176,9 +180,27 @@ mod tests {
     fn test_position_estimation() {
         let est = PositionEstimator::default();
         let readings = vec![
-            RssiReading { beacon_id: "a".into(), signal_type: SignalType::Wifi24Ghz, rssi_dbm: -40.0, timestamp_ms: 0, beacon_position: Some(Position::new(0.0, 0.0)) },
-            RssiReading { beacon_id: "b".into(), signal_type: SignalType::Wifi24Ghz, rssi_dbm: -40.0, timestamp_ms: 0, beacon_position: Some(Position::new(10.0, 0.0)) },
-            RssiReading { beacon_id: "c".into(), signal_type: SignalType::Wifi24Ghz, rssi_dbm: -40.0, timestamp_ms: 0, beacon_position: Some(Position::new(5.0, 10.0)) },
+            RssiReading {
+                beacon_id: "a".into(),
+                signal_type: SignalType::Wifi24Ghz,
+                rssi_dbm: -40.0,
+                timestamp_ms: 0,
+                beacon_position: Some(Position::new(0.0, 0.0)),
+            },
+            RssiReading {
+                beacon_id: "b".into(),
+                signal_type: SignalType::Wifi24Ghz,
+                rssi_dbm: -40.0,
+                timestamp_ms: 0,
+                beacon_position: Some(Position::new(10.0, 0.0)),
+            },
+            RssiReading {
+                beacon_id: "c".into(),
+                signal_type: SignalType::Wifi24Ghz,
+                rssi_dbm: -40.0,
+                timestamp_ms: 0,
+                beacon_position: Some(Position::new(5.0, 10.0)),
+            },
         ];
         let pos = est.estimate_position(&readings).unwrap();
         assert!((pos.x - 5.0).abs() < 0.1);

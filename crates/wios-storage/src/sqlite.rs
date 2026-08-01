@@ -25,8 +25,10 @@ impl SqliteStore {
             .map_err(|e| WiosError::Storage(format!("Failed to open SQLite: {}", e)))?;
 
         // Enable WAL mode for better concurrent read performance
-        conn.execute_batch("PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000;")
-            .map_err(|e| WiosError::Storage(e.to_string()))?;
+        conn.execute_batch(
+            "PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000;",
+        )
+        .map_err(|e| WiosError::Storage(e.to_string()))?;
 
         let store = Self {
             conn: Arc::new(Mutex::new(conn)),
@@ -39,8 +41,7 @@ impl SqliteStore {
 
     /// Open an in-memory database (for testing).
     pub fn open_in_memory() -> WiosResult<Self> {
-        let conn = Connection::open_in_memory()
-            .map_err(|e| WiosError::Storage(e.to_string()))?;
+        let conn = Connection::open_in_memory().map_err(|e| WiosError::Storage(e.to_string()))?;
         conn.execute_batch("PRAGMA foreign_keys=ON;")
             .map_err(|e| WiosError::Storage(e.to_string()))?;
 
@@ -54,8 +55,9 @@ impl SqliteStore {
     /// Initialize the base schema.
     fn initialize_schema_sync(&self) -> WiosResult<()> {
         // Use try_lock since no contention exists during initialization
-        let conn = self.conn.try_lock()
-            .map_err(|_| WiosError::Storage("Failed to acquire lock during initialization".into()))?;
+        let conn = self.conn.try_lock().map_err(|_| {
+            WiosError::Storage("Failed to acquire lock during initialization".into())
+        })?;
         conn.execute_batch(
             "
             CREATE TABLE IF NOT EXISTS kv_store (
@@ -140,7 +142,11 @@ impl SqliteStore {
     }
 
     /// List keys in a namespace.
-    pub async fn list_keys(&self, namespace: &str, prefix: Option<&str>) -> WiosResult<Vec<String>> {
+    pub async fn list_keys(
+        &self,
+        namespace: &str,
+        prefix: Option<&str>,
+    ) -> WiosResult<Vec<String>> {
         let conn = self.conn.lock().await;
         let mut keys = Vec::new();
 

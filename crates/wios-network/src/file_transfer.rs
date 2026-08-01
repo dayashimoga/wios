@@ -59,11 +59,15 @@ impl FileTransfer {
     /// Mark a chunk as received.
     pub fn ack_chunk(&mut self, chunk_index: u32) -> WiosResult<()> {
         if chunk_index >= self.total_chunks {
-            return Err(WiosError::Storage(format!("Invalid chunk index: {}", chunk_index)));
+            return Err(WiosError::Storage(format!(
+                "Invalid chunk index: {}",
+                chunk_index
+            )));
         }
         if !self.completed_chunks.contains(&chunk_index) {
             self.completed_chunks.push(chunk_index);
-            self.transferred_bytes = (self.completed_chunks.len() as u64) * (self.chunk_size as u64);
+            self.transferred_bytes =
+                (self.completed_chunks.len() as u64) * (self.chunk_size as u64);
             self.transferred_bytes = self.transferred_bytes.min(self.total_bytes);
         }
         if self.completed_chunks.len() as u32 == self.total_chunks {
@@ -83,7 +87,9 @@ impl FileTransfer {
 
     /// Progress as 0.0–1.0.
     pub fn progress(&self) -> f64 {
-        if self.total_chunks == 0 { return 0.0; }
+        if self.total_chunks == 0 {
+            return 0.0;
+        }
         self.completed_chunks.len() as f64 / self.total_chunks as f64
     }
 }
@@ -95,7 +101,9 @@ pub struct TransferManager {
 
 impl TransferManager {
     pub fn new() -> Self {
-        Self { transfers: HashMap::new() }
+        Self {
+            transfers: HashMap::new(),
+        }
     }
 
     pub fn initiate(&mut self, transfer: FileTransfer) -> String {
@@ -105,8 +113,13 @@ impl TransferManager {
     }
 
     pub fn ack_chunk(&mut self, transfer_id: &str, chunk_index: u32) -> WiosResult<()> {
-        let transfer = self.transfers.get_mut(transfer_id)
-            .ok_or(WiosError::NotFound { entity: "transfer".into(), id: transfer_id.into() })?;
+        let transfer = self
+            .transfers
+            .get_mut(transfer_id)
+            .ok_or(WiosError::NotFound {
+                entity: "transfer".into(),
+                id: transfer_id.into(),
+            })?;
         transfer.ack_chunk(chunk_index)
     }
 
@@ -115,14 +128,20 @@ impl TransferManager {
     }
 
     pub fn cancel(&mut self, transfer_id: &str) -> WiosResult<()> {
-        let transfer = self.transfers.get_mut(transfer_id)
-            .ok_or(WiosError::NotFound { entity: "transfer".into(), id: transfer_id.into() })?;
+        let transfer = self
+            .transfers
+            .get_mut(transfer_id)
+            .ok_or(WiosError::NotFound {
+                entity: "transfer".into(),
+                id: transfer_id.into(),
+            })?;
         transfer.state = TransferState::Cancelled;
         Ok(())
     }
 
     pub fn active_transfers(&self) -> Vec<&FileTransfer> {
-        self.transfers.values()
+        self.transfers
+            .values()
             .filter(|t| matches!(t.state, TransferState::InProgress | TransferState::Pending))
             .collect()
     }
@@ -161,7 +180,8 @@ mod tests {
 
     #[test]
     fn test_resumable_transfer() {
-        let mut transfer = FileTransfer::new("big.zip".into(), 20_000, 4096, NodeId::new(), NodeId::new());
+        let mut transfer =
+            FileTransfer::new("big.zip".into(), 20_000, 4096, NodeId::new(), NodeId::new());
         // Simulate partial transfer (chunks 0, 2 received, 1, 3, 4 missing)
         transfer.ack_chunk(0).unwrap();
         transfer.ack_chunk(2).unwrap();
@@ -171,7 +191,8 @@ mod tests {
     #[test]
     fn test_transfer_manager() {
         let mut mgr = TransferManager::new();
-        let transfer = FileTransfer::new("doc.pdf".into(), 8000, 4096, NodeId::new(), NodeId::new());
+        let transfer =
+            FileTransfer::new("doc.pdf".into(), 8000, 4096, NodeId::new(), NodeId::new());
         let id = mgr.initiate(transfer);
 
         mgr.ack_chunk(&id, 0).unwrap();

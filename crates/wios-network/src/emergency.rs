@@ -92,7 +92,8 @@ impl SosManager {
 
         // Prune oldest if at capacity
         if alerts.len() >= self.max_active {
-            if let Some(oldest_id) = alerts.values()
+            if let Some(oldest_id) = alerts
+                .values()
                 .filter(|a| a.resolved)
                 .min_by_key(|a| a.timestamp)
                 .map(|a| a.id.clone())
@@ -108,8 +109,10 @@ impl SosManager {
     /// Acknowledge an alert from a peer.
     pub async fn acknowledge(&self, alert_id: &str, node: NodeId) -> WiosResult<()> {
         let mut alerts = self.alerts.write().await;
-        let alert = alerts.get_mut(alert_id)
-            .ok_or(WiosError::NotFound { entity: "alert".into(), id: alert_id.into() })?;
+        let alert = alerts.get_mut(alert_id).ok_or(WiosError::NotFound {
+            entity: "alert".into(),
+            id: alert_id.into(),
+        })?;
         if !alert.acknowledged_by.contains(&node) {
             alert.acknowledged_by.push(node);
         }
@@ -119,8 +122,10 @@ impl SosManager {
     /// Resolve an alert.
     pub async fn resolve(&self, alert_id: &str) -> WiosResult<()> {
         let mut alerts = self.alerts.write().await;
-        let alert = alerts.get_mut(alert_id)
-            .ok_or(WiosError::NotFound { entity: "alert".into(), id: alert_id.into() })?;
+        let alert = alerts.get_mut(alert_id).ok_or(WiosError::NotFound {
+            entity: "alert".into(),
+            id: alert_id.into(),
+        })?;
         alert.resolved = true;
         Ok(())
     }
@@ -128,10 +133,7 @@ impl SosManager {
     /// Get all active (unresolved) alerts, sorted by severity (highest first).
     pub async fn active_alerts(&self) -> Vec<SosAlert> {
         let alerts = self.alerts.read().await;
-        let mut active: Vec<_> = alerts.values()
-            .filter(|a| !a.resolved)
-            .cloned()
-            .collect();
+        let mut active: Vec<_> = alerts.values().filter(|a| !a.resolved).cloned().collect();
         active.sort_by_key(|b| std::cmp::Reverse(b.severity));
         active
     }
@@ -148,7 +150,9 @@ impl SosManager {
 }
 
 impl Default for SosManager {
-    fn default() -> Self { Self::new(100) }
+    fn default() -> Self {
+        Self::new(100)
+    }
 }
 
 #[cfg(test)]
@@ -161,10 +165,16 @@ mod tests {
         let sender = NodeId::new();
         let responder = NodeId::new();
 
-        let id = mgr.broadcast(
-            sender, SosSeverity::Critical, "Fire in building A".into(),
-            SosAlertType::Fire, Some((10.0, 20.0)),
-        ).await.unwrap();
+        let id = mgr
+            .broadcast(
+                sender,
+                SosSeverity::Critical,
+                "Fire in building A".into(),
+                SosAlertType::Fire,
+                Some((10.0, 20.0)),
+            )
+            .await
+            .unwrap();
 
         let active = mgr.active_alerts().await;
         assert_eq!(active.len(), 1);
@@ -178,10 +188,16 @@ mod tests {
     #[tokio::test]
     async fn test_sos_resolve() {
         let mgr = SosManager::new(10);
-        let id = mgr.broadcast(
-            NodeId::new(), SosSeverity::Warning, "Test".into(),
-            SosAlertType::ManualTrigger, None,
-        ).await.unwrap();
+        let id = mgr
+            .broadcast(
+                NodeId::new(),
+                SosSeverity::Warning,
+                "Test".into(),
+                SosAlertType::ManualTrigger,
+                None,
+            )
+            .await
+            .unwrap();
 
         assert_eq!(mgr.active_alerts().await.len(), 1);
         mgr.resolve(&id).await.unwrap();
@@ -191,9 +207,33 @@ mod tests {
     #[tokio::test]
     async fn test_severity_ordering() {
         let mgr = SosManager::new(10);
-        mgr.broadcast(NodeId::new(), SosSeverity::Info, "Low".into(), SosAlertType::Custom("test".into()), None).await.unwrap();
-        mgr.broadcast(NodeId::new(), SosSeverity::LifeThreatening, "High".into(), SosAlertType::Medical, None).await.unwrap();
-        mgr.broadcast(NodeId::new(), SosSeverity::Warning, "Mid".into(), SosAlertType::Security, None).await.unwrap();
+        mgr.broadcast(
+            NodeId::new(),
+            SosSeverity::Info,
+            "Low".into(),
+            SosAlertType::Custom("test".into()),
+            None,
+        )
+        .await
+        .unwrap();
+        mgr.broadcast(
+            NodeId::new(),
+            SosSeverity::LifeThreatening,
+            "High".into(),
+            SosAlertType::Medical,
+            None,
+        )
+        .await
+        .unwrap();
+        mgr.broadcast(
+            NodeId::new(),
+            SosSeverity::Warning,
+            "Mid".into(),
+            SosAlertType::Security,
+            None,
+        )
+        .await
+        .unwrap();
 
         let active = mgr.active_alerts().await;
         assert_eq!(active[0].severity, SosSeverity::LifeThreatening);

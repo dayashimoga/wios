@@ -78,16 +78,31 @@ impl RbacEngine {
                 name: "admin".into(),
                 description: "Full system administrator".into(),
                 permissions: [
-                    Permission::NetworkJoin, Permission::NetworkAdmin, Permission::PeerManage,
-                    Permission::MessageSend, Permission::MessageBroadcast,
-                    Permission::StorageRead, Permission::StorageWrite, Permission::StorageDelete,
-                    Permission::StorageAdmin, Permission::AiInfer, Permission::AiModelManage,
-                    Permission::ComputeSubmit, Permission::ComputeAdmin,
-                    Permission::DeviceShare, Permission::DeviceAccess,
-                    Permission::UserManage, Permission::RoleManage, Permission::ConfigManage,
-                    Permission::AuditView, Permission::SystemAdmin,
-                    Permission::PluginInstall, Permission::PluginExecute,
-                ].into_iter().collect(),
+                    Permission::NetworkJoin,
+                    Permission::NetworkAdmin,
+                    Permission::PeerManage,
+                    Permission::MessageSend,
+                    Permission::MessageBroadcast,
+                    Permission::StorageRead,
+                    Permission::StorageWrite,
+                    Permission::StorageDelete,
+                    Permission::StorageAdmin,
+                    Permission::AiInfer,
+                    Permission::AiModelManage,
+                    Permission::ComputeSubmit,
+                    Permission::ComputeAdmin,
+                    Permission::DeviceShare,
+                    Permission::DeviceAccess,
+                    Permission::UserManage,
+                    Permission::RoleManage,
+                    Permission::ConfigManage,
+                    Permission::AuditView,
+                    Permission::SystemAdmin,
+                    Permission::PluginInstall,
+                    Permission::PluginExecute,
+                ]
+                .into_iter()
+                .collect(),
                 created_at: Utc::now(),
             },
         );
@@ -99,11 +114,17 @@ impl RbacEngine {
                 name: "user".into(),
                 description: "Standard user".into(),
                 permissions: [
-                    Permission::NetworkJoin, Permission::MessageSend,
-                    Permission::StorageRead, Permission::StorageWrite,
-                    Permission::AiInfer, Permission::ComputeSubmit,
-                    Permission::DeviceShare, Permission::PluginExecute,
-                ].into_iter().collect(),
+                    Permission::NetworkJoin,
+                    Permission::MessageSend,
+                    Permission::StorageRead,
+                    Permission::StorageWrite,
+                    Permission::AiInfer,
+                    Permission::ComputeSubmit,
+                    Permission::DeviceShare,
+                    Permission::PluginExecute,
+                ]
+                .into_iter()
+                .collect(),
                 created_at: Utc::now(),
             },
         );
@@ -115,9 +136,12 @@ impl RbacEngine {
                 name: "guest".into(),
                 description: "Limited guest access".into(),
                 permissions: [
-                    Permission::NetworkJoin, Permission::MessageSend,
+                    Permission::NetworkJoin,
+                    Permission::MessageSend,
                     Permission::StorageRead,
-                ].into_iter().collect(),
+                ]
+                .into_iter()
+                .collect(),
                 created_at: Utc::now(),
             },
         );
@@ -240,16 +264,30 @@ mod tests {
         let node_id = NodeId::new();
 
         // No role assigned yet
-        assert!(!rbac.has_permission(&node_id, &Permission::MessageSend).await);
+        assert!(
+            !rbac
+                .has_permission(&node_id, &Permission::MessageSend)
+                .await
+        );
 
         // Assign user role
         rbac.assign_role(&node_id, "user").await.unwrap();
-        assert!(rbac.has_permission(&node_id, &Permission::MessageSend).await);
-        assert!(!rbac.has_permission(&node_id, &Permission::SystemAdmin).await);
+        assert!(
+            rbac.has_permission(&node_id, &Permission::MessageSend)
+                .await
+        );
+        assert!(
+            !rbac
+                .has_permission(&node_id, &Permission::SystemAdmin)
+                .await
+        );
 
         // Assign admin role
         rbac.assign_role(&node_id, "admin").await.unwrap();
-        assert!(rbac.has_permission(&node_id, &Permission::SystemAdmin).await);
+        assert!(
+            rbac.has_permission(&node_id, &Permission::SystemAdmin)
+                .await
+        );
     }
 
     #[tokio::test]
@@ -258,19 +296,33 @@ mod tests {
         let node_id = NodeId::new();
         rbac.assign_role(&node_id, "guest").await.unwrap();
 
-        assert!(rbac.require_permission(&node_id, &Permission::StorageRead).await.is_ok());
-        assert!(rbac.require_permission(&node_id, &Permission::StorageWrite).await.is_err());
+        assert!(rbac
+            .require_permission(&node_id, &Permission::StorageRead)
+            .await
+            .is_ok());
+        assert!(rbac
+            .require_permission(&node_id, &Permission::StorageWrite)
+            .await
+            .is_err());
     }
 
     #[tokio::test]
     async fn test_custom_role() {
         let rbac = RbacEngine::new();
-        let perms: HashSet<Permission> = [Permission::AiInfer, Permission::AiModelManage].into_iter().collect();
-        rbac.create_role("ai_operator", "AI operations only", perms).await.unwrap();
+        let perms: HashSet<Permission> = [Permission::AiInfer, Permission::AiModelManage]
+            .into_iter()
+            .collect();
+        rbac.create_role("ai_operator", "AI operations only", perms)
+            .await
+            .unwrap();
 
         let node_id = NodeId::new();
         rbac.assign_role(&node_id, "ai_operator").await.unwrap();
         assert!(rbac.has_permission(&node_id, &Permission::AiInfer).await);
-        assert!(!rbac.has_permission(&node_id, &Permission::StorageRead).await);
+        assert!(
+            !rbac
+                .has_permission(&node_id, &Permission::StorageRead)
+                .await
+        );
     }
 }

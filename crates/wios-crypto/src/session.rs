@@ -76,9 +76,7 @@ impl SessionManager {
     /// Validate a session token and refresh its expiry.
     pub async fn validate_and_refresh(&self, token: &str) -> WiosResult<Session> {
         let mut sessions = self.sessions.write().await;
-        let session = sessions
-            .get_mut(token)
-            .ok_or(WiosError::TokenExpired)?;
+        let session = sessions.get_mut(token).ok_or(WiosError::TokenExpired)?;
 
         if !session.is_active || Utc::now() > session.expires_at {
             session.is_active = false;

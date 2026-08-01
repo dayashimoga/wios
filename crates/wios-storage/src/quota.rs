@@ -130,7 +130,10 @@ impl QuotaManager {
         }
         let pct = state.used_bytes as f64 / state.max_bytes as f64;
         if pct >= 1.0 {
-            warn!("Storage quota EXCEEDED: {}/{} bytes", state.used_bytes, state.max_bytes);
+            warn!(
+                "Storage quota EXCEEDED: {}/{} bytes",
+                state.used_bytes, state.max_bytes
+            );
         } else if pct >= state.critical_threshold {
             warn!("Storage quota CRITICAL: {:.1}% used", pct * 100.0);
         } else if pct >= state.warning_threshold {

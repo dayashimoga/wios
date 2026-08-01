@@ -27,10 +27,7 @@ pub enum WiosEvent {
     /// A message was sent successfully.
     MessageSent { message_id: String },
     /// Message delivery failed.
-    MessageFailed {
-        message_id: String,
-        reason: String,
-    },
+    MessageFailed { message_id: String, reason: String },
     /// Network topology changed.
     TopologyChanged { peer_count: usize },
 
@@ -41,10 +38,7 @@ pub enum WiosEvent {
         records_synced: u64,
     },
     /// Sync conflict detected.
-    SyncConflict {
-        entity: String,
-        id: String,
-    },
+    SyncConflict { entity: String, id: String },
     /// Storage quota warning.
     StorageQuotaWarning { used_bytes: u64, max_bytes: u64 },
 
@@ -52,10 +46,7 @@ pub enum WiosEvent {
     /// Authentication succeeded.
     AuthSuccess { node_id: NodeId },
     /// Authentication failed.
-    AuthFailure {
-        node_id: NodeId,
-        reason: String,
-    },
+    AuthFailure { node_id: NodeId, reason: String },
     /// Security audit event.
     AuditLog {
         action: String,
@@ -68,19 +59,13 @@ pub enum WiosEvent {
     /// Model loaded successfully.
     ModelLoaded { model_id: String },
     /// Inference completed.
-    InferenceComplete {
-        model_id: String,
-        duration_ms: u64,
-    },
+    InferenceComplete { model_id: String, duration_ms: u64 },
 
     // ── Compute Events ─────────────────────────────────────────
     /// Distributed task submitted.
     TaskSubmitted { task_id: String },
     /// Task completed.
-    TaskCompleted {
-        task_id: String,
-        duration_ms: u64,
-    },
+    TaskCompleted { task_id: String, duration_ms: u64 },
     /// Task failed.
     TaskFailed { task_id: String, reason: String },
 
@@ -104,10 +89,7 @@ pub enum WiosEvent {
     /// Configuration changed.
     ConfigChanged { key: String },
     /// Error occurred in a subsystem.
-    SubsystemError {
-        subsystem: String,
-        error: String,
-    },
+    SubsystemError { subsystem: String, error: String },
 }
 
 /// Event bus for publishing and subscribing to WIOS events.
@@ -171,8 +153,14 @@ mod tests {
         assert_eq!(bus.subscriber_count(), 2);
         bus.publish(WiosEvent::SystemStarted);
 
-        assert!(matches!(*rx1.recv().await.unwrap(), WiosEvent::SystemStarted));
-        assert!(matches!(*rx2.recv().await.unwrap(), WiosEvent::SystemStarted));
+        assert!(matches!(
+            *rx1.recv().await.unwrap(),
+            WiosEvent::SystemStarted
+        ));
+        assert!(matches!(
+            *rx2.recv().await.unwrap(),
+            WiosEvent::SystemStarted
+        ));
     }
 
     #[test]

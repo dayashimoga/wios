@@ -115,11 +115,7 @@ impl AuditLogger {
     }
 
     /// Query audit log entries.
-    pub async fn query(
-        &self,
-        actor: Option<&NodeId>,
-        limit: usize,
-    ) -> Vec<AuditEntry> {
+    pub async fn query(&self, actor: Option<&NodeId>, limit: usize) -> Vec<AuditEntry> {
         let entries = self.entries.read().await;
         entries
             .iter()

@@ -37,7 +37,9 @@ pub fn decompress(data: &[u8], algo: CompressionAlgo) -> WiosResult<Vec<u8>> {
 
 /// Estimate compression ratio without full compression.
 pub fn estimate_ratio(data: &[u8]) -> f64 {
-    if data.is_empty() { return 1.0; }
+    if data.is_empty() {
+        return 1.0;
+    }
     let unique_bytes: std::collections::HashSet<u8> = data.iter().cloned().collect();
     let entropy = unique_bytes.len() as f64 / 256.0;
     // Higher entropy = less compressible

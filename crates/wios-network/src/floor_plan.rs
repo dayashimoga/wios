@@ -58,7 +58,9 @@ pub struct NavigationGraph {
 
 impl NavigationGraph {
     pub fn from_floor_plan(plan: &FloorPlan) -> Self {
-        let waypoints = plan.waypoints.iter()
+        let waypoints = plan
+            .waypoints
+            .iter()
             .map(|w| (w.id.clone(), w.clone()))
             .collect();
         Self { waypoints }
@@ -66,8 +68,8 @@ impl NavigationGraph {
 
     /// Find shortest path using Dijkstra's algorithm.
     pub fn find_path(&self, from_id: &str, to_id: &str) -> Option<Vec<String>> {
-        use std::collections::BinaryHeap;
         use std::cmp::Reverse;
+        use std::collections::BinaryHeap;
 
         let _from = self.waypoints.get(from_id)?;
         let _to = self.waypoints.get(to_id)?;
@@ -77,7 +79,10 @@ impl NavigationGraph {
         let mut heap = BinaryHeap::new();
 
         dist.insert(from_id.to_string(), 0.0);
-        heap.push(Reverse((ordered_float::OrderedFloat(0.0), from_id.to_string())));
+        heap.push(Reverse((
+            ordered_float::OrderedFloat(0.0),
+            from_id.to_string(),
+        )));
 
         while let Some(Reverse((ordered_float::OrderedFloat(d), u))) = heap.pop() {
             if u == to_id {
@@ -92,7 +97,9 @@ impl NavigationGraph {
                 return Some(path);
             }
 
-            if d > *dist.get(&u).unwrap_or(&f64::MAX) { continue; }
+            if d > *dist.get(&u).unwrap_or(&f64::MAX) {
+                continue;
+            }
 
             if let Some(wp) = self.waypoints.get(&u) {
                 for neighbor_id in &wp.connections {
@@ -105,7 +112,10 @@ impl NavigationGraph {
                         if new_dist < *dist.get(neighbor_id).unwrap_or(&f64::MAX) {
                             dist.insert(neighbor_id.clone(), new_dist);
                             prev.insert(neighbor_id.clone(), u.clone());
-                            heap.push(Reverse((ordered_float::OrderedFloat(new_dist), neighbor_id.clone())));
+                            heap.push(Reverse((
+                                ordered_float::OrderedFloat(new_dist),
+                                neighbor_id.clone(),
+                            )));
                         }
                     }
                 }
@@ -118,7 +128,10 @@ impl NavigationGraph {
     pub fn path_distance(&self, path: &[String]) -> f64 {
         let mut total = 0.0;
         for i in 1..path.len() {
-            if let (Some(a), Some(b)) = (self.waypoints.get(&path[i-1]), self.waypoints.get(&path[i])) {
+            if let (Some(a), Some(b)) = (
+                self.waypoints.get(&path[i - 1]),
+                self.waypoints.get(&path[i]),
+            ) {
                 let dx = a.position.x - b.position.x;
                 let dy = a.position.y - b.position.y;
                 total += (dx * dx + dy * dy).sqrt();
@@ -167,20 +180,40 @@ mod tests {
             floor: 0,
             width_m: 50.0,
             height_m: 30.0,
-            rooms: vec![
-                Room {
-                    id: "lobby".into(), name: "Lobby".into(), floor: 0,
-                    corners: vec![
-                        Point2D { x: 0.0, y: 0.0 }, Point2D { x: 20.0, y: 0.0 },
-                        Point2D { x: 20.0, y: 15.0 }, Point2D { x: 0.0, y: 15.0 },
-                    ],
-                    tags: vec!["entrance".into()],
-                },
-            ],
+            rooms: vec![Room {
+                id: "lobby".into(),
+                name: "Lobby".into(),
+                floor: 0,
+                corners: vec![
+                    Point2D { x: 0.0, y: 0.0 },
+                    Point2D { x: 20.0, y: 0.0 },
+                    Point2D { x: 20.0, y: 15.0 },
+                    Point2D { x: 0.0, y: 15.0 },
+                ],
+                tags: vec!["entrance".into()],
+            }],
             waypoints: vec![
-                Waypoint { id: "a".into(), position: Point2D { x: 0.0, y: 0.0 }, floor: 0, name: "Start".into(), connections: vec!["b".into()] },
-                Waypoint { id: "b".into(), position: Point2D { x: 10.0, y: 0.0 }, floor: 0, name: "Mid".into(), connections: vec!["a".into(), "c".into()] },
-                Waypoint { id: "c".into(), position: Point2D { x: 10.0, y: 10.0 }, floor: 0, name: "End".into(), connections: vec!["b".into()] },
+                Waypoint {
+                    id: "a".into(),
+                    position: Point2D { x: 0.0, y: 0.0 },
+                    floor: 0,
+                    name: "Start".into(),
+                    connections: vec!["b".into()],
+                },
+                Waypoint {
+                    id: "b".into(),
+                    position: Point2D { x: 10.0, y: 0.0 },
+                    floor: 0,
+                    name: "Mid".into(),
+                    connections: vec!["a".into(), "c".into()],
+                },
+                Waypoint {
+                    id: "c".into(),
+                    position: Point2D { x: 10.0, y: 10.0 },
+                    floor: 0,
+                    name: "End".into(),
+                    connections: vec!["b".into()],
+                },
             ],
             beacons: vec![],
         }

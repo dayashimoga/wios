@@ -37,10 +37,18 @@ pub struct FusedPosition {
 
 /// Fuse multiple position estimates using weighted average based on confidence and accuracy.
 pub fn fuse_positions(estimates: &[PositionEstimate]) -> Option<FusedPosition> {
-    if estimates.is_empty() { return None; }
+    if estimates.is_empty() {
+        return None;
+    }
     if estimates.len() == 1 {
         let e = &estimates[0];
-        return Some(FusedPosition { x: e.x, y: e.y, z: e.z, accuracy_m: e.accuracy_m, source_count: 1 });
+        return Some(FusedPosition {
+            x: e.x,
+            y: e.y,
+            z: e.z,
+            accuracy_m: e.accuracy_m,
+            source_count: 1,
+        });
     }
 
     let mut total_weight = 0.0;
@@ -57,9 +65,12 @@ pub fn fuse_positions(estimates: &[PositionEstimate]) -> Option<FusedPosition> {
         total_weight += weight;
     }
 
-    if total_weight < 1e-9 { return None; }
+    if total_weight < 1e-9 {
+        return None;
+    }
 
-    let fused_accuracy = estimates.iter()
+    let fused_accuracy = estimates
+        .iter()
         .map(|e| e.accuracy_m * (1.0 - e.confidence * 0.5))
         .fold(f64::MAX, f64::min);
 
@@ -80,7 +91,10 @@ pub struct PositionSmoother {
 
 impl PositionSmoother {
     pub fn new(alpha: f64) -> Self {
-        Self { position: None, alpha: alpha.clamp(0.01, 1.0) }
+        Self {
+            position: None,
+            alpha: alpha.clamp(0.01, 1.0),
+        }
     }
 
     pub fn update(&mut self, new: FusedPosition) {
@@ -104,7 +118,15 @@ mod tests {
     use super::*;
 
     fn est(x: f64, y: f64, acc: f64, conf: f64, src: PositionSource) -> PositionEstimate {
-        PositionEstimate { x, y, z: 0.0, accuracy_m: acc, source: src, timestamp_ms: 0, confidence: conf }
+        PositionEstimate {
+            x,
+            y,
+            z: 0.0,
+            accuracy_m: acc,
+            source: src,
+            timestamp_ms: 0,
+            confidence: conf,
+        }
     }
 
     #[test]
@@ -117,7 +139,7 @@ mod tests {
     #[test]
     fn test_fusion_prefers_accurate() {
         let estimates = vec![
-            est(10.0, 10.0, 1.0, 0.9, PositionSource::Uwb),     // High accuracy
+            est(10.0, 10.0, 1.0, 0.9, PositionSource::Uwb), // High accuracy
             est(20.0, 20.0, 10.0, 0.5, PositionSource::WifiRssi), // Low accuracy
         ];
         let result = fuse_positions(&estimates).unwrap();
@@ -129,10 +151,22 @@ mod tests {
     #[test]
     fn test_smoother() {
         let mut smoother = PositionSmoother::new(0.5);
-        smoother.update(FusedPosition { x: 10.0, y: 10.0, z: 0.0, accuracy_m: 1.0, source_count: 1 });
+        smoother.update(FusedPosition {
+            x: 10.0,
+            y: 10.0,
+            z: 0.0,
+            accuracy_m: 1.0,
+            source_count: 1,
+        });
         assert_eq!(smoother.position.as_ref().unwrap().x, 10.0);
 
-        smoother.update(FusedPosition { x: 20.0, y: 20.0, z: 0.0, accuracy_m: 1.0, source_count: 1 });
+        smoother.update(FusedPosition {
+            x: 20.0,
+            y: 20.0,
+            z: 0.0,
+            accuracy_m: 1.0,
+            source_count: 1,
+        });
         assert!((smoother.position.as_ref().unwrap().x - 15.0).abs() < 0.01);
     }
 }

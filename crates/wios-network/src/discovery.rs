@@ -1,7 +1,5 @@
 //! Peer discovery mechanisms.
 
-
-
 /// Discovery configuration for various methods.
 #[derive(Debug, Clone)]
 pub struct DiscoveryConfig {

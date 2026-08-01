@@ -9,7 +9,6 @@ use uuid::Uuid;
 use wios_core::error::{WiosError, WiosResult};
 use wios_core::traits::{TaskState, TaskStatus};
 
-
 /// Manages distributed compute task lifecycle.
 pub struct TaskScheduler {
     tasks: Arc<RwLock<HashMap<String, TaskStatus>>>,
@@ -26,11 +25,7 @@ impl TaskScheduler {
     }
 
     /// Submit a new task.
-    pub async fn submit(
-        &self,
-        name: impl Into<String>,
-        _payload: Vec<u8>,
-    ) -> WiosResult<String> {
+    pub async fn submit(&self, name: impl Into<String>, _payload: Vec<u8>) -> WiosResult<String> {
         let task_id = Uuid::new_v4().to_string();
         let status = TaskStatus {
             task_id: task_id.clone(),
@@ -45,9 +40,14 @@ impl TaskScheduler {
         };
 
         let mut tasks = self.tasks.write().await;
-        let running_count = tasks.values().filter(|t| t.state == TaskState::Running).count();
+        let running_count = tasks
+            .values()
+            .filter(|t| t.state == TaskState::Running)
+            .count();
         if running_count >= self.max_concurrent {
-            return Err(WiosError::TaskScheduling("Max concurrent tasks reached".into()));
+            return Err(WiosError::TaskScheduling(
+                "Max concurrent tasks reached".into(),
+            ));
         }
         tasks.insert(task_id.clone(), status);
         Ok(task_id)
@@ -55,7 +55,9 @@ impl TaskScheduler {
 
     /// Get task status.
     pub async fn status(&self, task_id: &str) -> WiosResult<TaskStatus> {
-        self.tasks.read().await
+        self.tasks
+            .read()
+            .await
             .get(task_id)
             .cloned()
             .ok_or_else(|| WiosError::Compute(format!("Task not found: {}", task_id)))
@@ -66,7 +68,10 @@ impl TaskScheduler {
         let mut tasks = self.tasks.write().await;
         if let Some(task) = tasks.get_mut(task_id) {
             task.state = state.clone();
-            if state == TaskState::Completed || state == TaskState::Failed || state == TaskState::Cancelled {
+            if state == TaskState::Completed
+                || state == TaskState::Failed
+                || state == TaskState::Cancelled
+            {
                 task.completed_at = Some(Utc::now());
             }
             Ok(())
@@ -93,16 +98,25 @@ mod tests {
     #[tokio::test]
     async fn test_task_lifecycle() {
         let scheduler = TaskScheduler::new(10);
-        let id = scheduler.submit("test-task", b"payload".to_vec()).await.unwrap();
+        let id = scheduler
+            .submit("test-task", b"payload".to_vec())
+            .await
+            .unwrap();
 
         let status = scheduler.status(&id).await.unwrap();
         assert_eq!(status.state, TaskState::Pending);
 
-        scheduler.update_state(&id, TaskState::Running).await.unwrap();
+        scheduler
+            .update_state(&id, TaskState::Running)
+            .await
+            .unwrap();
         let status = scheduler.status(&id).await.unwrap();
         assert_eq!(status.state, TaskState::Running);
 
-        scheduler.update_state(&id, TaskState::Completed).await.unwrap();
+        scheduler
+            .update_state(&id, TaskState::Completed)
+            .await
+            .unwrap();
         let status = scheduler.status(&id).await.unwrap();
         assert_eq!(status.state, TaskState::Completed);
         assert!(status.completed_at.is_some());
